@@ -3,7 +3,7 @@ Use-Git
 
 HELP Markdown syntax for .md file
 ====
-``` Markdown syntax for .md file 
+``` 
 # H1
 ## H2
 ### H3
