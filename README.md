@@ -2,35 +2,38 @@ Use-Git
 =======
 init
 -------
-* configuration
-** authentication 
+### * authentication 
+
 ```
 $ ssh-keygen
 $ cat .ssh/id_rsa.pub
 ```
+
 > copy id_rsa.pub to github.com user setting's ssh key list
 
-** set user name
+### * set user name
+
 ```
 $ git config user.name "fallseir at 1.59"
 $ git config user.email "fallseir@gmail.com"
 ```
 
-** init repo
+### * init repo
 ```
 $ git clone https://github.com/fallseir/Use-Git.git Fs.Use-Git
 ```
 
 work
 ------
-* commit
+### * commit
 > edit README.md
+
 ```
 $ git status 
 $ git add README.md
 $ git commit -m "append markdown syntax introduce"
 ```
-* check
+### * check
 ```
 $ git log
 $ git config alias.logc "log --color --graph --pretty=format:'%Cred%h%Creset \
