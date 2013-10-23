@@ -1,9 +1,9 @@
 Use-Git
 =======
 
-HELP
+HELP Markdown syntax for .md file
 ====
-''' Markdown syntax for .md file 
+``` Markdown syntax for .md file 
 # H1
 ## H2
 ### H3
@@ -14,7 +14,7 @@ Title
 sub title
 ---
 
-'' code ''
+`` code ``
 
 > blockquote
 
@@ -43,5 +43,5 @@ _single underscores_
 1. list
 3. list
 
-'''
+```
 
