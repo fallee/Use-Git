@@ -33,17 +33,31 @@ $ git status
 $ git add README.md
 $ git commit -m "append markdown syntax introduce"
 ```
+
 ### * check
 
 ```
-
 $ git log
 $ git config alias.logc "log --color --graph --pretty=format:'%Cred%h%Creset \
 -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --date=iso" 
 $ git logc
-
+$ git diff HEAD -- README.md
 ```
 
+### * remote
+
+```
+$ git remote add up git@github.com:fallseir/Use-Git.git
+$ git push up master:master
+$ git fetch up
+```
+
+### * branch
+
+```
+$ git branch -a
+$ git checkout -b editREADME
+$ git 
 
 
 
