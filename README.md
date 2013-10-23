@@ -34,11 +34,14 @@ $ git add README.md
 $ git commit -m "append markdown syntax introduce"
 ```
 ### * check
+
 ```
+
 $ git log
 $ git config alias.logc "log --color --graph --pretty=format:'%Cred%h%Creset \
 -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --date=iso" 
 $ git logc
+
 ```
 
 
@@ -46,7 +49,8 @@ $ git logc
 
 HELP Markdown syntax for .md file
 ====
-``` Markdown syntax for .md file 
+
+``` 
 # H1
 ## H2
 ### H3
