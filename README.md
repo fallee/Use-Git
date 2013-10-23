@@ -57,7 +57,9 @@ $ git fetch up
 ```
 $ git branch -a
 $ git checkout -b editREADME
-$ git 
+$ git push up editREADME:master
+$ git push up editREADME
+```
 
 
 
