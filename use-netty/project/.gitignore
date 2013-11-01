@@ -1,0 +1,11 @@
+
+*.jar
+*.[oa]
+*.class
+.*
+!.gitignore
+
+class/
+ignore/
+lib/
+bin/
