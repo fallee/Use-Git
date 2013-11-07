@@ -1,5 +1,7 @@
 package com.tensynchina.fs.learn.zookeeper.demo;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -70,16 +72,14 @@ public class MultiClient2 {
 			}
 		}
 	}
-	public void Listen(String zkHost,String checkDir){
+	public void Listen(String zkHost,String checkDir,CountDownLatch latch){
 		ZooKeeper zk=null;
 		int timeout=5000;
 		try{
 			zk = new ZooKeeper(zkHost,timeout,new TEST02Watcher("Listener")); 
 			Stat status=zk.exists(checkDir,true);
 			System.out.println("目录节点状态：["+status+"]");
-			while(true){ // wait interrupt
-				zk.wait(timeout);
-			}
+			latch.await();
 		}catch(Exception e){
 			System.out.println("Listen "+e);
 			e.printStackTrace();
@@ -99,6 +99,7 @@ public class MultiClient2 {
 		ZooKeeper zk=null;
 		int timeout=5000;
 		try{
+			
 			// 创建一个与服务器的连接
 			zk = new ZooKeeper(zkHost,timeout,new TEST02Watcher("TEST02"));
 			

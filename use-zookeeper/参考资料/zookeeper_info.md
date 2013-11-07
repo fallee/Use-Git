@@ -277,8 +277,30 @@ int consume() throws KeeperException, InterruptedException{
 '''
 
 
+###### 笔记 ######
+* CountDownLatch 
+- 多线程同步锁
+- java.util.concurrent.CountDownLatch
+- 设定计数 CountDownLatch(总数);
+- 等待计数归零 latch.await();
+- 计数器减一 latch.countDown();
+
+* Watcher 
+- 持续监听需要在触发后再设置一次watcher（只监听一次消息，然后就会失效）
+- 连接关闭后，监听失效
+
+
+
+
+----------
+###### 《hadoop in action》之zookeeper学习笔记
+[http://macrochen.iteye.com/blog/1005164]
+
+
 ----------
 ###### 参考列表
+* 《hadoop in action》之zookeeper学习笔记
+[http://macrochen.iteye.com/blog/1005164]
 * 分布式服务框架 Zookeeper -- 管理分布式环境中的数据
 [http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/]
 * ZooKeeper 典型的应用场景 
@@ -290,3 +312,8 @@ int consume() throws KeeperException, InterruptedException{
 * [http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/]
 * [http://hadoop.apache.org/zookeeper/docs/current/]
 * [http://rdc.taobao.com/team/jm/archives/448]
+
+----------
+###### 相关站点
+* Hadoop技术论坛 
+[http://www.hadoopor.com/]
