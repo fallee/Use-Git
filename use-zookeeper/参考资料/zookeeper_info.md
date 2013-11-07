@@ -118,8 +118,8 @@ System.out.println(zk.getChildren("/testRootPath", false));
 这样就做到动态master选举。
 
 ----------
-###### ZooKeeper 典型的应用场景  ######
-[http://beiden.me/archives/2203.htm]
+###### 分布式服务框架 Zookeeper -- 管理分布式环境中的数据  ######
+[ http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/ ]
 
 * 统一命名服务 （Name Service） *
 Name Service 已经是 Zookeeper 内置的功能，你只要调用 Zookeeper 的 API 就能实现。如调用 create 接口就可以很容易创建一个目录节点。
@@ -277,6 +277,14 @@ int consume() throws KeeperException, InterruptedException{
 '''
 
 
+
+
+----------
+###### 《hadoop in action》之zookeeper学习笔记
+[ http://macrochen.iteye.com/blog/1005164 ]
+
+
+----------
 ###### 笔记 ######
 * CountDownLatch 
 - 多线程同步锁
@@ -290,28 +298,20 @@ int consume() throws KeeperException, InterruptedException{
 - 连接关闭后，监听失效
 
 
-
-
-----------
-###### 《hadoop in action》之zookeeper学习笔记
-[http://macrochen.iteye.com/blog/1005164]
-
-
 ----------
 ###### 参考列表
 * 《hadoop in action》之zookeeper学习笔记
-[http://macrochen.iteye.com/blog/1005164]
+[ http://macrochen.iteye.com/blog/1005164 ]
 * 分布式服务框架 Zookeeper -- 管理分布式环境中的数据
-[http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/]
-* ZooKeeper 典型的应用场景 
-[http://beiden.me/archives/2203.htm]
+[ http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/ ]
+
 * zookeeper使用和原理探究（一）
-[http://www.blogjava.net/BucketLi/archive/2010/12/21/341268.html]
+[ http://www.blogjava.net/BucketLi/archive/2010/12/21/341268.html ]
 * ZooKeeper Getting Started Guide 
-[http://zookeeper.apache.org/doc/current/zookeeperStarted.html]
-* [http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/]
-* [http://hadoop.apache.org/zookeeper/docs/current/]
-* [http://rdc.taobao.com/team/jm/archives/448]
+[ http://zookeeper.apache.org/doc/current/zookeeperStarted.html ]
+* [ http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/ ]
+* [ http://hadoop.apache.org/zookeeper/docs/current/ ]
+* [ http://rdc.taobao.com/team/jm/archives/448 ]
 
 ----------
 ###### 相关站点

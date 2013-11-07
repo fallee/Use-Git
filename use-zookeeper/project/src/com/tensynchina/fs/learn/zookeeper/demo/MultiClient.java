@@ -1,9 +1,9 @@
 package com.tensynchina.fs.learn.zookeeper.demo;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import javax.swing.event.DocumentEvent.EventType;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -20,41 +20,122 @@ public class MultiClient {
 		app.run();
 	}
     protected static Integer mutex;
+	private ZooKeeper zookeeper = null;
 	public void run() throws InterruptedException{
 		final String zkHost="192.168.1.15:2181";//,192.168.1.16:2181,192.168.1.18:2181";
 		final String rootPath="/testRootPath";
-		// 创建根节点
-		CreatePath(zkHost,rootPath);
-		
-		// 监听
-		final CountDownLatch latch=new CountDownLatch(1);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Listen(zkHost, rootPath,latch);
+		try{
+			try {
+				connection(zkHost);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}).start();
-		// 进行操作
-		TEST03(zkHost,rootPath);
-		latch.countDown();
-		// 关闭监听
-//		DeletePath(zkHost,checkDir);
-//		CreatePath(zkHost,checkDir);
-//		Listen(zkHost,checkDir);
-////		Thread listener=new Thread(new Runnable() {
-////			public void run() {
-////				Listen(zkHost,checkDir);
-////			}
-////		});
-////		listener.start();
-//		//TEST01(zkHost);
-//		//TEST02(zkHost);
-//		Thread.sleep(5*60*1000);
-////		listener.interrupt();
-//		DeletePath(zkHost,checkDir);
-		// 删除根节点
-		DeletePath(zkHost,rootPath);
+			// 创建根节点
+			CreatePath(zkHost,rootPath);
+			
+			// 监听
+			final CountDownLatch latch=new CountDownLatch(1);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Listen(zkHost, rootPath,latch);
+				}
+			}).start();
+			// 进行操作
+			TEST03(zkHost,rootPath);// 测试添加删除节点
+			TEST04(rootPath);// 测试命名服务
+			TEST05(rootPath);// 测试数据更新  抛异常了 。。。 囧
+			
+			//Thread.sleep(1000);
+			latch.countDown();
+			// 关闭监听
+	//		DeletePath(zkHost,checkDir);
+	//		CreatePath(zkHost,checkDir);
+	//		Listen(zkHost,checkDir);
+	////		Thread listener=new Thread(new Runnable() {
+	////			public void run() {
+	////				Listen(zkHost,checkDir);
+	////			}
+	////		});
+	////		listener.start();
+	//		//TEST01(zkHost);
+	//		//TEST02(zkHost);
+	//		Thread.sleep(5*60*1000);
+	////		listener.interrupt();
+	//		DeletePath(zkHost,checkDir);
+			// 删除根节点
+			DeletePath(zkHost,rootPath);
+		}finally{
+			disconnect();
+		}
 	}
+	
+	private void connection(String zkHost) throws IOException {
+		int timeout=50000;
+		zookeeper  = new ZooKeeper(zkHost,timeout,new TEST02Watcher("MultiClient"));
+	}
+
+	private void disconnect() throws InterruptedException {
+		if(zookeeper!=null){
+			zookeeper.close();
+		}
+	}
+	private void TEST05(String rootPath) throws InterruptedException{
+		final ZooKeeper zk=zookeeper;
+		String path=rootPath+"/config";
+		try {
+			Watcher watcher=new Watcher(){
+				@Override
+				public void process(WatchedEvent event) {
+					try {
+						String data=new String(zk.getData(event.getPath(), this, null));
+						out("dataChanged "+event.getPath()+" "+data);
+					} catch (KeeperException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			};
+			String name = zk.create(path, path.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			zk.getData(path,watcher,null); // 添加监测
+			out("create node"+name);
+			zk.setData(path, "abcdefg".getBytes(), -1);
+			out("set node"+name);
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	// 测试唯一名称
+	private void TEST04(String rootPath) throws InterruptedException {
+		ZooKeeper zk=zookeeper;
+		String path=rootPath+"/namepath_";
+		String name;
+		try {
+			name = zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+			name=zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+			zk.delete(name, -1); // 删除上一个节点
+			out("delete node"+name);
+			name=zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+			name=zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+			name=zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+			name=zk.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			out("create node"+name);
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void DeletePath(String zkHost, String path) {
 		ZooKeeper zk=null;
 		int timeout=5000;
@@ -128,6 +209,7 @@ public class MultiClient {
 			}
 		}
 	}
+	// 持续监测子节点变更
 	public void Listen(String zkHost,String path,CountDownLatch latch){
 		ZooKeeper zk=null;
 		int timeout=5000;
@@ -157,6 +239,7 @@ public class MultiClient {
 			}
 		}
 	}
+	// 基本操作测试
 	public void TEST03(String zkHost,String path){
 		ZooKeeper zk=null;
 		int timeout=5000;
@@ -270,8 +353,9 @@ public class MultiClient {
 			System.out.println(name+" 已经触发了" + event.getType() + "事件！"+event);
 			if(zk!=null&&event.getPath()!=null&&event.getType().toString().equals("NodeChildrenChanged")){
 				try {
-					zk.getChildren(event.getPath(), true);
-					out("process ["+name+"] children "+zk.getChildren(event.getPath(), false));
+					List<String> cs=zk.getChildren(event.getPath(), true);
+					//cs=zk.getChildren(event.getPath(), true); //KeeperErrorCode = ConnectionLoss for /testRootPath
+					out("process ["+name+"] children "+event.getPath()+" "+cs);//zk.getChildren(event.getPath(), false));// exception...
 				} catch (KeeperException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
