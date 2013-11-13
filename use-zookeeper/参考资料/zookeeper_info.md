@@ -117,6 +117,8 @@ System.out.println(zk.getChildren("/testRootPath", false));
 相应的znode会消失，然后新的服务器列表就被推送到客户端，然后每个节点逻辑认为最小编号节点为master，
 这样就做到动态master选举。
 
+
+
 ----------
 ###### 分布式服务框架 Zookeeper -- 管理分布式环境中的数据  ######
 [ http://www.ibm.com/developerworks/cn/opensource/os-cn-zookeeper/ ]
