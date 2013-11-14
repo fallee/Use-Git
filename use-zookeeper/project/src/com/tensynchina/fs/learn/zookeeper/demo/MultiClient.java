@@ -415,6 +415,27 @@ public class MultiClient {
 				// 不论临时还是持久的队列序号在同级目录下都是在一条线上累计的 
 				
 				out("== 测试ACL ==");
+				
+				zk0.create("/TEST02/READONLY_NODE", "SOMEDATA".getBytes(), Ids.READ_ACL_UNSAFE, CreateMode.PERSISTENT);
+				out("END 创建只读节点 /TEST02/READONLY_NODE");
+				out("BEGIN 创建者尝试更新 /TEST02/READONLY_NODE");
+				try{
+					zk0.setData("/TEST02/READONLY_NODE","UPDATA".getBytes(),-1);
+					out("END 创建者尝试更新 /TEST02/READONLY_NODE");
+				}catch(KeeperException e){
+					out("Exception in Change read only Node "+e.getMessage());
+				}
+				// 创建者也不能更新只读数据，只能删除
+				out("ZK "+zk); //ZK State:CONNECTED Timeout:5000 sessionid:0x1420d717c8b0185 local:/192.168.1.56:3566 remoteserver:slave2/192.168.1.15:2181 lastZxid:8589936733 xid:30 sent:30 recv:43 queuedpkts:0 pendingresp:1 queuedevents:0
+				out("ANYONE_ID_UNSAFE "+Ids.ANYONE_ID_UNSAFE); // 'world,'anyone
+				out("AUTH_IDS "+Ids.AUTH_IDS); // 'auth,'
+				out("CREATOR_ALL_ACL "+Ids.CREATOR_ALL_ACL); // [31,s{'auth,'}
+				out("OPEN_ACL_UNSAFE "+Ids.OPEN_ACL_UNSAFE); // [31,s{'world,'anyone}
+				out("READ_ACL_UNSAFE "+Ids.READ_ACL_UNSAFE); // [1,s{'world,'anyone}
+				
+				
+				out("创建创建者可用节点 ");
+				out("创建创建者可用节点 "); 
 
 			}catch(Exception e){
 				System.out.println("TEST02 "+e);
