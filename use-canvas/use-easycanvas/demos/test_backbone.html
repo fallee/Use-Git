@@ -1,0 +1,25 @@
+<html>
+	<meta charset="utf-8">
+	<title>TEST Backbone</title>
+	<script type="text/javascript" src="script/underscore-min.js"></script>
+	<script type="text/javascript" src="script/backbone.js"></script>
+<body>
+<div id="msg"></div>
+<script>
+function msg(msg){
+	var box=document.getElementById("msg");
+	box.innerHTML=msg+"<br/>"+box.innerHTML;
+}
+msg("TEST Begin");
+// backbone model
+var InitDemo01=Backbone.Model.extend({
+	initialize:function(arg01){
+		msg(JSON.stringify(arg01));
+	}
+});
+var demo01=new InitDemo01({name:"abc"});
+
+msg("TEST end");
+</script>
+</body>
+</html>

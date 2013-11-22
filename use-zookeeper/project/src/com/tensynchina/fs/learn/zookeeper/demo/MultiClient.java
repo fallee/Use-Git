@@ -9,8 +9,11 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Id;
 import org.apache.zookeeper.data.Stat;
 
 public class MultiClient {
@@ -380,8 +383,23 @@ public class MultiClient {
 				try{
 					tcr01=zk02.create("/TEST02/SUB_EPHEMERAL_SEQUENTIAL", "SOMEDATA".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 					out("创建临时数据节点 "+tcr01);
+					try{
+						out("BEGIN 尝试创建临时子节点 "+tcr01+"/SUB01");
+						zk02.create(tcr01+"/SUB01", null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+					}catch(KeeperException e){
+						out("Exception in create sub node for ephemeral node "+e.getMessage());
+					}
+					
+					
 					tcr02=zk02.create("/TEST02/SUB_PERSISTENT_SEQUENTIAL", "SOMEDATA".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
 					out("创建持久数据节点 "+tcr02);
+					try{
+						out("BEGIN 尝试创建持久序列节点的子节点 "+tcr02+"/SUB01");
+						zk02.create(tcr02+"/SUB01", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+						out("END 尝试创建持久序列节点的子节点 "+tcr02+"/SUB01");
+					}catch(KeeperException e){
+						out("Exception in create sub node for ephemeral node "+e.getMessage());
+					}
 				}finally{
 					out("关闭独立连接");
 					zk02.close();
@@ -433,9 +451,140 @@ public class MultiClient {
 				out("OPEN_ACL_UNSAFE "+Ids.OPEN_ACL_UNSAFE); // [31,s{'world,'anyone}
 				out("READ_ACL_UNSAFE "+Ids.READ_ACL_UNSAFE); // [1,s{'world,'anyone}
 				
+				// 附加身份信息，发送创建一个所有者才能更改的节点
+				// 新建连接 使用相同的身份信息，验证数据是否可以更新成功
+				String auth_type = "digest";//digest";
+				String auth = "userabckey";
+				zk.addAuthInfo(auth_type, auth.getBytes());
+				out("ADD AUTH INFO ");
+				zk.create("/TEST02/AUTH_TEST", "some private data".getBytes(), Ids.CREATOR_ALL_ACL, CreateMode.EPHEMERAL);
+				out("CREATE DATANODE /TEST02/AUTH_TEST");
+				try{
+					ZooKeeper zk04=new ZooKeeper(zkHost, 5000, new NothingWatcher());
+					out("BEGIN TRY GET DATA");
+					try{
+						out("END TRY GET DATA "+new String(zk04.getData("/TEST02/AUTH_TEST", false,null)));
+					}catch(KeeperException e){
+						out("Exception in TRY AUTH "+e.getMessage());
+					}
+					zk04.addAuthInfo(auth_type, auth.getBytes());
+					out("ADD AUTH INFO");
+					out("BEGIN TRY GET DATA BY AUTH");
+					out("END TRY GET DATA  BY AUTH "+new String(zk04.getData("/TEST02/AUTH_TEST", false,null)));
+					zk04.close();
+				}catch(KeeperException e){
+					out("Exception in TRY AUTH "+e.getMessage());
+				}
+				// 附加了相同身份信息的可以存取数据
+				// 临时节点不能创建子节点
 				
-				out("创建创建者可用节点 ");
-				out("创建创建者可用节点 "); 
+				out("== 测试数据监听 ==");
+				final ZooKeeper zk05=zk;
+				zk.exists("/TEST02/UNExistsNode", new Watcher() {
+					ZooKeeper _zk=null;
+					String path="";
+					{
+						_zk=zk05;
+						path="/TEST02/UNExistsNode";
+					}
+					public void process(WatchedEvent event) {
+						out("ON UNExistsNode Event Triggered "+event);
+						try {
+//							if(event.getType().equals(EventType.NodeCreated)){
+//								byte[] d = _zk.getData(path, new Watcher(){
+//										public void process(WatchedEvent event) {
+//											out("ON UNExistsNode DATA Changed "+event);
+//										}
+//									}, null);
+//								String data="NULL";
+//								if(d!=null){
+//									data=new String(d);
+//								}
+//								out("watch data "+path+" "+data);
+//							}
+							_zk.exists(path, this);
+						} catch (KeeperException e) {
+							out("KeeperException in Watch UNExistsNode "+e.getMessage());
+						} catch (InterruptedException e) {
+							out("InterruptedException in Watch UNExistsNode "+e.getMessage());
+						} 
+					}
+				});
+				out("添加监听 /TEST02/UNExistsNode ");
+				out("BEGIN 创建节点 /TEST02/UNExistsNode ");
+				zk.create("/TEST02/UNExistsNode", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				out("END 创建节点 /TEST02/UNExistsNode ");
+				Thread.sleep(100); // 因为是异步操作 如果没有延迟 可能监听不到下一个事件
+				out("BEGIN 更改节点数据 /TEST02/UNExistsNode ");
+				zk.setData("/TEST02/UNExistsNode", "TEST".getBytes(), -1);
+				out("END 更改节点数据 /TEST02/UNExistsNode ");
+				// exists 的watcher 可以监听节点的创建,数据变更和删除操作
+				
+				// 数据版本测试
+				{
+					String p="/TEST02/DataVersion";
+					out("数据版本 "+p);
+					zk.create(p,"TEST_V01".getBytes(),Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL);
+					Stat s=new Stat();
+					byte[] d=zk.getData(p, false, s);
+					String r="[EMPTY]";
+					if(d!=null){
+						r=new String(d);
+					}
+					out("GET 01 "+p+" "+r+" version:"+s.getVersion()+" stat:"+s);
+					zk.setData(p, "TEST_V02".getBytes(),s.getVersion());
+					d=zk.getData(p, false, s);
+					r="[EMPTY]";
+					if(d!=null){
+						r=new String(d);
+					}
+					out("GET 02 "+p+" "+r+" version:"+s.getVersion()+" stat:"+s);
+					try{
+						zk.setData(p, "TEST_V03".getBytes(),s.getVersion()-1);
+					}catch(KeeperException e){
+						out("SET 02 DATA Failed "+p+" version "+(s.getVersion()-1)+" Exception "+e);
+					}
+					try{
+						zk.setData(p, "TEST_V03".getBytes(),s.getVersion()+1);
+					}catch(KeeperException e){
+						out("SET 02 DATA Failed "+p+" version "+(s.getVersion()+1)+" Exception "+e);
+					}
+					zk.setData(p, "TEST_V03".getBytes(),s.getVersion());
+					out("SET 03 DATA "+p+" last version: "+s.getVersion());
+					
+					d=zk.getData(p, false, s);
+					r="[EMPTY]";
+					if(d!=null){
+						r=new String(d);
+					}
+					out("GET 03 "+p+" "+r+" version:"+s.getVersion()+" stat:"+s);
+					try{
+						zk.delete(p, 1);//s.getVersion());// 只能使用最后的版本号进行删除
+						out("DELETE 03 "+p+" "+1);
+					}catch(KeeperException e){
+						out("DELETE 03 DATA Failed "+p+" Exception "+e);
+					}
+					zk.delete(p, -1);
+					out("DELETE 03 "+p+" -1");
+					s=new Stat();
+					try{
+						d=zk.getData(p, false, s); // KeeperErrorCode = BadVersion for /TEST02/DataVersion
+						r="[EMPTY]";
+						if(d!=null){
+							r=new String(d);
+						}
+						out("GET 04 "+p+" "+r+" version:"+s.getVersion()+" stat:"+s);
+					}catch(KeeperException e){
+						out("GET 04 DATA Failed "+p+" Exception "+e);
+					}
+					
+				}
+				
+				
+				// 多次监听会触发几次
+				{
+					
+				}
 
 			}catch(Exception e){
 				System.out.println("TEST02 "+e);
