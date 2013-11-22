@@ -1,6 +1,6 @@
 <html>
 	<meta charset="utf-8">
-	<title>TEST Backbone</title>
+	<title>TEST Underscore</title>
 	<script type="text/javascript" src="script/underscore-min.js"></script>
 	<script type="text/javascript" src="script/backbone.js"></script>
 <body>
@@ -10,15 +10,17 @@ function msg(msg){
 	var box=document.getElementById("msg");
 	box.innerHTML=msg+"<br/>"+box.innerHTML;
 }
+function jsonencode(obj){
+	return JSON.stringify(obj);
+}
 msg("TEST Begin");
+
 // backbone model
-var InitDemo01=Backbone.Model.extend({
-	value:"value01",
-	initialize:function(arg01){
-		msg(JSON.stringify(arg01)+" this "+JSON.stringify(this.value));//get("name")));
-	}
-});
-var demo01=new InitDemo01({name:"abc"});
+var demo01={a:"a01",b:"b01"};
+_.extend(demo01,{a:"a02",c:"c0201"},{c:"c0202",f:"f02"});
+msg("DEMO01 extend: "+jsonencode(demo01));
+_.defaults(demo01,{a:"a03"},{b:"b03",d:"d0301"},{d:"d0302",e:"e03"});
+msg("DEMO01 default: "+jsonencode(demo01));
 
 msg("TEST end");
 </script>

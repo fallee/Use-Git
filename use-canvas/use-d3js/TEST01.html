@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<title>TEST01 for d3.v3</title>
+		<link href="css/default.css" rel="stylesheet" />
+		<script type="text/javascript" src="d3/d3.v3.min.js"></script>
+	</head>
+	<body>
+		<div>
+			TEST DATA
+			<p>P ONE</p>
+			<p>P TWO</p>
+			<p>P 3</p>
+			<p>P 4</p>
+			<p>P 5</p>
+			<p>P 6</p>
+			<p>P 7</p>
+			<p>P 8</p>
+			<p>P 9</p>
+			<p>P 10</p>
+			<p>P 11</p>
+			<p>P 12</p>
+			<p>P 13</p>
+			<p>P 14</p>
+			<p>P 15</p>
+		</div>
+		<div id="msg"></div>
+
+		<script type="text/javascript">
+
+function msg(msg){
+	var box=document.getElementById("msg");
+	box.innerHTML=msg+"<br/>"+box.innerHTML;
+}
+			msg("d3 version"+d3.version);
+
+			d3.selectAll("p").style("color", "red");
+
+			d3.select("body").style("background-color", "#CCC");
+
+			d3.selectAll("p").style("color", function(d, i) {
+			  return i % 2 ? "#666" : "#000";
+			});
+
+			d3.selectAll("p")
+			    .data([2, 5, 10])
+			    .style("font-size", function(d,i) { msg("data 2,5,10 "+d+" "+i); return d + "px"; });
+
+			d3.select("body").selectAll("p")
+				.data([4, 8, 15])
+				.enter().append("p")
+				.text(function(d) { return "I’m number " + d + "!"; });
+		</script>
+	</body>
+</html>

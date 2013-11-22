@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link href="css/default.css" rel="stylesheet" />
+	</head>
+	<body>
+	
+		<div id="viewport01" style="width:300px;height: 150px">
+		</div>
+		<div id="viewport02" style="width:300px;height: 150px">
+		</div>
+	
+		<script type="text/javascript" src="script/underscore-min.js"></script>
+		<script type="text/javascript" src="script/backbone.js"></script>
+		<script type="text/javascript" src="script/ec.global.js"></script>
+
+		<script type="text/javascript">
+			// 1. viewport 为预定义的ID 在ec.global.js 里 
+
+			//create 2 layers, background draw a circle, foreground draw a rect
+
+			var layer1 = new EC.Layer("viewport01"),
+				layer2 = new EC.Layer("viewport01"),
+				ctx1 = layer1.ctx,
+				ctx2 = layer2.ctx,
+				graph1, Graph2;
+			// 	构建一个图形 并设置默认绘制方式
+			graph1 = new EC.Graph({
+				'x': 50,
+				'y': 50,
+				'r': 10,
+				'path': function(ctx) {
+					ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+				},
+				'draggable': true, 
+				
+			});
+			graph1.render(ctx1, ['fill']);
+			// 
+			Graph2 = EC.Graph.extend({
+				path: function(ctx) {
+					ctx.rect(this.x, this.y, this.r, this.r);
+				},
+				style: {'fillStyle': '#fff'},
+				'draggable': true, // 允许拖动
+				'dragMode': 'normal' // 拖动模式
+			});
+
+			g21 = new Graph2({x:100, y:40, r:20}).render(ctx1, ['stroke', 'fill']);
+			g22 = new Graph2({x:120, y:60, r:20}).render(ctx1, ['stroke', 'fill']);
+
+			// 设置layer1的动作
+			layer1.update(function() {
+				graph1.x = ++graph1.x % EC.Layer.viewport.width;
+
+			});
+			// 开启交互
+			EC.Layer.animate.start();
+
+		</script>
+	</body>
+</html>
