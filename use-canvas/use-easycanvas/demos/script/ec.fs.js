@@ -1,41 +1,50 @@
 
 /*
- * EasyCanvas - v1.0
- * Copyright (c) 2011-12013
- * http://www.ued-lab.com
- * @description EasyCanvas is a tiny Framework for canvas drawing, game and animation building,
- *               which is require Underscore and BackBone for Model and Event
- * @author james.li0122@gmail.com     
+ * StageLayerGraph.fs - v1.0.1
+ * Copyright (c) 2011-2013
+ * @description 
+ * 舞台、图层和元素
+ * 元素本身可以响应事件
+ * 可以按图层进行重绘
+ * 支持动画
+ * @author 
+ * 引用
+ * - EasyCanvas http://www.ued-lab.com 基于图层的canvas框架
+ * - DOM Event Helper http://dean.edwards.name/weblog/2005/10/add-event/
+ * - underscore http://underscorejs.org 集合，数组，方法，对象等基础扩展工具包
+ * - backone http://backbonejs.org 模型框架 主要使用其事件绑定
+ * - animation Easing functions https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
  */
+
+/**
+viewport=new Viewport("divid");
+layer=new Layer({id:"layerid",viewport:viewport);
+g01=new Graph("graphid");
+layer.addGraph(g01);
+layer.render();
+layer.setAnimation();
+*/
 
 
 (function(Backbone) {
-
-
   /**
-   * @framwork EC
-   * @public
-   * @property {class} Layer
-   * @property {class} Graph
-   * @description Main export object
+   * 舞台 Stage
+   * Stage.layers
+   * Stage.layers[i].graphs
    */
-  var EC = {};
-
-
+  var Viewport={};
   /**
-   * @private
-   * @description extend object
+   * 图层 Layer
    */
-  var _extend = function(_target, o) {
-    if (IsType.isObject(o)) {
-      for (var i in o) {
-        if (o.hasOwnProperty(i))
-          _target[i] = o[i];
-      }
-    }
-  }
-
+  var Layer={};
   /**
+   * 图像元素 Graph
+   */
+  var Graph={};
+
+//==== Helper ====//
+  /**
+   * 绑定 DOM 事件
    * DOM Event Helper
    * @private
    * @description dom event register from Dean Edwards
@@ -52,7 +61,7 @@
       if (!elm.events) elm.events = {};
 
       var handlers = elm.events[type];
-  
+
       if (!handlers) {
         handlers = elm.events[type] = {};
         
@@ -102,252 +111,6 @@
     }
   };
 
-
-
-  /**
-   * IsType: value type detector
-   * @private
-   * @property {fn} isObject
-   * @property {fn} isFunction
-   * @property {fn} isString
-   * @property {fn} isArray
-   */
-  var IsType = {
-    toString: Object.prototype.toString,
-    isObject: function(o) {
-      var str =  this.toString.call(o),
-          reg = /^\[object (?!(Array|Function|String)\]$)/i;
-      return reg.test(str);
-    },
-    isFunction: function(o) {
-      // some native function (e.g. alert) not pass the test
-      return this.toString.call(o) === "[object Function]";
-    },
-    isString: function(o) {
-      return this.toString.call(o) === "[object String]";
-    },
-    isArray: function(o) {
-      return this.toString.call(o) === "[object Array]";
-    }
-  };
-
-
-
-
-  /**
-   * @extend CanvasRenderingContext2D object
-   * @private
-   * @property {array} currentTransform
-   * @property {fn} centerRotate: rotate context round centain point
-   * @property {fn} flipH
-   * @property {fn} flipV
-   * @property {array} graphs: graph instances in the context
-   * @property {fn} reRender: redraw all graphs in the context
-   * @property {fn} clear: clear context [and all graphs in the context]
-   */
-
-  function _enhanceCTX(ctx) {
-    var proto = ctx.constructor.prototype;
-  
-    ctx.currentTransform = [1, 0, 0, 1, 0, 0];
-    ctx.transformStore = [];
-    
-    ctx.setTransform = function() {
-      proto.setTransform.apply(this, arguments);
-      ctx.currentTransform = Array.prototype.slice.call(arguments, 0);
-    };
-    
-    ctx.transform=function() {
-      proto.transform.apply(this, arguments);
-      //matrix multiply
-      var m = ctx.currentTransform;
-      var n = arguments;
-      ctx.currentTransform = mtxMultiply(m,n);
-    };
-    
-    ctx.translate = function() {
-      proto.translate.apply(this, arguments);
-      ctx.currentTransform[4] += arguments[0];
-      ctx.currentTransform[5] += arguments[1];
-    };
-    
-    ctx.scale = function() {
-      proto.scale.apply(this, arguments);
-      ctx.currentTransform[0] *= arguments[0];
-      ctx.currentTransform[3] *= arguments[1];
-    };
-    
-    ctx.rotate = function() {
-      proto.rotate.call(this, arguments[0]);
-      var sin = Math.sin(arguments[0]);
-      var cos = Math.cos(arguments[0]);
-      var m = ctx.currentTransform;
-      var n = [cos, sin, -sin, cos, 0, 0];
-      ctx.currentTransform = mtxMultiply(m, n);
-    };
-    
-    ctx.save = function() {
-      proto.save.call(this);
-      ctx.transformStore.push(ctx.currentTransform.slice(0));
-    };
-    
-    ctx.restore = function() {
-      proto.restore.call(this);
-      if(ctx.transformStore.length>0)
-        ctx.currentTransform = ctx.transformStore.pop();
-    };
-    
-    //1pxfix
-    ctx.transform(1, 0, 0, 1, 0.5, 0.5);
-  
-    /**
-      * draw rotate and flips
-      */
-    //center rotate
-    ctx.centerRotate = function(angle, cx, cy) {
-        var r = Math.sqrt(cx * cx + cy * cy);
-        var cos = Math.cos(angle);
-        var sin = Math.sin(angle);
-        var dx = cx * cos + cy * sin;
-        var dy = cy * cos - cx * sin;
-        
-        this.rotate(angle);
-        this.translate(-cx, -cy)
-        this.translate( dx, dy);
-    };
-    // flip horizontal
-    ctx.flipH = function(cx) {
-        this.translate(cx, 0);
-        this.scale(-1, 1);
-        this.translate(-cx, 0);
-    };
-    // flip vertical
-    ctx.flipV = function(cy) {
-        this.translate(0, cy);
-        this.scale(1, -1);
-        this.translate(0, -cy);
-    };
-
-    //two transform matrix multiply
-    function mtxMultiply(m,n) {
-      var a = m[0] * n[0] + m[1] * n[2],
-          b = m[0] * n[1] + m[1] * n[3],
-          c = m[2] * n[0] + m[3] * n[2],
-          d = m[2] * n[1] + m[3] * n[3],
-          e = m[4] * n[0] + m[5] * n[2] + n[4],
-          f = m[4] * n[1] + m[5] * n[3] + n[5];
-      
-      return [a, b, c, d, e, f];
-    }
-
-    //two transform matrix division
-    function mtxDivision(v,m){
-      var x = (m[3] * (v[0] - m[4]) - m[2] * (v[1] - m[5]))/(m[0] * m[3] - m[1] * m[2]),
-          y = (m[0] * (v[1] - m[5]) - m[1] * (v[0] - m[4]))/(m[0] * m[3] - m[1] * m[2]);
-      return [x, y];
-    }
-
-    // 创建用于保存图形数据的存储器
-    ctx.graphs = [];
-
-    ctx.reRender = function() {
-      var graphs = this.graphs,
-          len = graphs.length,
-          i = 0;
-
-      this.clearRect(0, 0, Layer.viewport.width, Layer.viewport.height);
-
-      for (; i < len; i++) {
-        graphs[i].render();
-      }
-    };
-
-    ctx.clear = function(clearGraph) {
-      if (clearGraph === true) {
-        this.graphs = [];
-      }
-      this.clearRect(0, 0, Layer.viewport.width, Layer.viewport.height);
-    };
-  }
-
-
-  /**
-   * animation
-   * @private
-   * @exports {array} Layer.aniLayers: animation update layers
-   * @exports {object} Layer.animate: animate control object
-   *
-   * Layer.animate
-   * @property {fn} start
-   * @property {fn} stop
-   * @property {fn} restart
-   */
-  //animation
-  function _animation(layer) {
-    var request = (function(callback) {
-          return window.requestAnimationFrame ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame ||
-          window.oRequestAnimationFrame ||
-          window.msRequestAnimationFrame ||
-          function(callback){
-            window.setTimeout(callback, 1000 / 60);
-          };
-        })();
-        
-    layer.aniLayers = [];
-
-    function clearStage() {
-      layer.aniLayers.forEach(function(v) {
-        v._aniClear();
-      });
-    }
-    function updateStage() {
-      layer.aniLayers.forEach(function(v) {
-        v._aniUpdate();
-      });
-      //moves update
-      if (layer.moves.length > 0) {
-        var time1 = new Date().getTime();
-        Layer.moves.forEach(function(v) {
-          v._update(time1);
-        });
-      }
-    }
-    function renderStage() {
-      layer.aniLayers.forEach(function(v) {
-        v._aniRender();
-      });
-    }
-
-
-    layer.animate = {
-      start: function() {
-
-        this.started = true;
-
-        clearStage();
-        updateStage();
-        renderStage();
-
-        request(function() {
-          layer.animate.start();
-        });
-
-      },
-
-      stop: function() {
-        this.started = false;
-        layer.tempRequest = request;
-        request = function() {};
-      },
-
-      restart: function() {
-        request = layer.tempRequest || request;
-        this.start();
-      }
-    };
-  }
 
   /**
    * @private
@@ -489,12 +252,14 @@
     }
   }
 
+
   /**
-   * @class Move
+   * @class Move 动画
    * @private
-   * @attribute o {object}: during, easing, callback
+   * @attribute o {object}: during, easing, callback,layer
    * callback @return {number} percent from 0 to 1 
    *
+   * this.layer
    */
   var Move = Backbone.Model.extend({
     initialize: function(o) {
@@ -505,10 +270,10 @@
         this.easing = 'linear';
       }
 
-      Layer.moves.push(this);
+      this.layer.moves.push(this);
 
       // move without animation frame
-      if (!Layer.animate.started) {
+      if (!this.layer.animate.started) {
         this._start();
       }
     },
@@ -531,9 +296,9 @@
         clearInterval(this._timer);
        delete this._timer;
       }
-      var ind = Layer.moves.indexOf(this);
+      var ind = this.layer.moves.indexOf(this);
       if (ind > -1)
-        Layer.moves.splice(ind, 1);
+        this.layer.moves.splice(ind, 1);
     },
 
     _start: function() {
@@ -544,6 +309,228 @@
       }, 10);
     }
   })
+
+
+  /**
+   * 扩展canvas的context
+   * 1. 重写原有方法在currentTransform中记录基于最初位置的偏移，以便于重绘
+   * 2. 增加常用操作
+   * @extend CanvasRenderingContext2D object
+   * @private
+   * @property {array} currentTransform
+   * @property {fn} centerRotate: rotate context round centain point
+   * @property {fn} flipH
+   * @property {fn} flipV
+   * @property {array} graphs: graph instances in the context
+   * @property {fn} reRender: redraw all graphs in the context
+   * @property {fn} clear: clear context [and all graphs in the context]
+   */
+
+  function _enhanceCTX(layer) {
+    var proto = layer.ctx.constructor.prototype;
+    var ctx=layer.ctx;
+    var viewport=layer.viewport;
+    ctx.currentTransform = [1, 0, 0, 1, 0, 0];
+    ctx.transformStore = [];
+    
+    layer.ctx.setTransform = function() {
+      proto.setTransform.apply(this, arguments);
+      ctx.currentTransform = Array.prototype.slice.call(arguments, 0);
+    };
+    
+    ctx.transform=function() {
+      proto.transform.apply(this, arguments);
+      //matrix multiply
+      var m = ctx.currentTransform;
+      var n = arguments;
+      ctx.currentTransform = mtxMultiply(m,n);
+    };
+    
+    ctx.translate = function() {
+      proto.translate.apply(this, arguments);
+      ctx.currentTransform[4] += arguments[0];
+      ctx.currentTransform[5] += arguments[1];
+    };
+    
+    ctx.scale = function() {
+      proto.scale.apply(this, arguments);
+      ctx.currentTransform[0] *= arguments[0];
+      ctx.currentTransform[3] *= arguments[1];
+    };
+    
+    ctx.rotate = function() {
+      proto.rotate.call(this, arguments[0]);
+      var sin = Math.sin(arguments[0]);
+      var cos = Math.cos(arguments[0]);
+      var m = ctx.currentTransform;
+      var n = [cos, sin, -sin, cos, 0, 0];
+      ctx.currentTransform = mtxMultiply(m, n);
+    };
+    
+    ctx.save = function() {
+      proto.save.call(this);
+      ctx.transformStore.push(ctx.currentTransform.slice(0));
+    };
+    
+    ctx.restore = function() {
+      proto.restore.call(this);
+      if(ctx.transformStore.length>0)
+        ctx.currentTransform = ctx.transformStore.pop();
+    };
+    
+    //1pxfix
+    ctx.transform(1, 0, 0, 1, 0.5, 0.5);
+  
+    /**
+      * draw rotate and flips
+      */
+    //center rotate
+    ctx.centerRotate = function(angle, cx, cy) {
+        var r = Math.sqrt(cx * cx + cy * cy);
+        var cos = Math.cos(angle);
+        var sin = Math.sin(angle);
+        var dx = cx * cos + cy * sin;
+        var dy = cy * cos - cx * sin;
+        
+        this.rotate(angle);
+        this.translate(-cx, -cy)
+        this.translate( dx, dy);
+    };
+    // flip horizontal
+    ctx.flipH = function(cx) {
+        this.translate(cx, 0);
+        this.scale(-1, 1);
+        this.translate(-cx, 0);
+    };
+    // flip vertical
+    ctx.flipV = function(cy) {
+        this.translate(0, cy);
+        this.scale(1, -1);
+        this.translate(0, -cy);
+    };
+
+    //two transform matrix multiply
+    function mtxMultiply(m,n) {
+      var a = m[0] * n[0] + m[1] * n[2],
+          b = m[0] * n[1] + m[1] * n[3],
+          c = m[2] * n[0] + m[3] * n[2],
+          d = m[2] * n[1] + m[3] * n[3],
+          e = m[4] * n[0] + m[5] * n[2] + n[4],
+          f = m[4] * n[1] + m[5] * n[3] + n[5];
+      
+      return [a, b, c, d, e, f];
+    }
+
+    //two transform matrix division
+    function mtxDivision(v,m){
+      var x = (m[3] * (v[0] - m[4]) - m[2] * (v[1] - m[5]))/(m[0] * m[3] - m[1] * m[2]),
+          y = (m[0] * (v[1] - m[5]) - m[1] * (v[0] - m[4]))/(m[0] * m[3] - m[1] * m[2]);
+      return [x, y];
+    }
+
+    // 创建用于保存图形数据的存储器
+    ctx.graphs = [];
+
+    ctx.reRender = function() {
+      var graphs = this.graphs,
+          len = graphs.length,
+          i = 0;
+      
+      this.clearRect(0, 0, viewport.width, viewport.height);
+
+      for (; i < len; i++) {
+        graphs[i].render();
+      }
+    };
+
+    ctx.clear = function(clearGraph) {
+      if (clearGraph === true) {
+        this.graphs = [];
+      }
+      this.clearRect(0, 0, viewport.width, viewport.height);
+    };
+  }
+
+
+  /**
+   * animation 动画刷新
+   * @private
+   * @exports {array} Layer.aniLayers: animation update layers
+   * @exports {object} Layer.animate: animate control object
+   *
+   * Layer.animate
+   * @property {fn} start
+   * @property {fn} stop
+   * @property {fn} restart
+   */
+  //animation
+  function _animation(viewport) {
+    var request = (function(callback) {
+          return window.requestAnimationFrame ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame ||
+          window.oRequestAnimationFrame ||
+          window.msRequestAnimationFrame ||
+          function(callback){
+            window.setTimeout(callback, 1000 / 60);
+          };
+        })();
+        
+    viewport.aniLayers = [];
+
+    function clearStage() {
+      viewport.aniLayers.forEach(function(v) {
+        v._aniClear();
+      });
+    }
+    function updateStage() {
+      viewport.aniLayers.forEach(function(v) {
+        v._aniUpdate();
+      });
+      //moves update
+      if (viewport.moves.length > 0) {
+        var time1 = new Date().getTime();
+        viewport.moves.forEach(function(v) {
+          v._update(time1);
+        });
+      }
+    }
+    function renderStage() {
+      viewport.aniLayers.forEach(function(v) {
+        v._aniRender();
+      });
+    }
+    /**
+     * 增加动画支持
+     */
+    Layer.prototype.animate = {
+      start: function() {
+
+        this.started = true;
+
+        clearStage();
+        updateStage();
+        renderStage();
+
+        request(function() {
+          this.viewport.animate.start();
+        });
+
+      },
+
+      stop: function() {
+        this.started = false;
+        this.tempRequest = request;
+        request = function() {};
+      },
+
+      restart: function() {
+        request = this.tempRequest || request;
+        this.start();
+      }
+    };
+
+  }
 
 
 
@@ -685,7 +672,7 @@
     initialize: function(customId) {
       // init viewport
       if (!this.viewport) {
-        this.viewport = new Viewport(customId);// 20131125 change at fallseir
+        this.viewport = new Viewport();
       }
       if (!this.moves) {
         this.moves = [];
@@ -709,7 +696,7 @@
       this.canvas.style.position = 'absolute';
       this.canvas.id = this.customId ? 'ec_' + this.customId : 'ec_' + this.cid;
       this.ctx = this.canvas.getContext('2d');
-      _enhanceCTX(this.ctx);
+      _enhanceCTX(this);
     },
 
     _aniClear: function() {
@@ -730,7 +717,7 @@
     _aniUpdate: function() {},
 
     update: function(fn) {
-      this.aniLayers.push(this);
+      this.viewport.aniLayers.push(this);
       this._aniUpdate = fn;
     }
 

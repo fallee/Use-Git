@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<title>layer canvas demo</title>
+<script type="text/javascript" src="script/underscore-min.js"></script>
+<script type="text/javascript" src="script/backbone.js"></script>
+<div id="viewport_01"></div>
+<script>
+(function(window){
+  var Graph=function(){};
+
+  _.extends(Graph,{
+    render:function(layer){
+      if (!this.layer) {
+        this.layer.remove(this);
+        layer.add(this);
+      }
+      //events
+      this.events();
+      
+      this._createPath(this.ctx);
+      if (this.style) {
+        this.ctx.save();
+        this._setStyle();
+      }
+      this._renderType(this.ctx, this.renderType);
+      if (this.style) {
+        this.ctx.restore();
+      }
+      return this;
+    }
+  });
+  LayerCanvas.Graph=Graph;
+  window.lc=window.LayerCanvas=LayerCanvas;
+})(window);
+</script>
+<script>
+graph=new lc.Graph({
+				'x': 50,
+				'y': 50,
+				'r': 10,
+				'path': function(ctx) {
+					ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+				},
+				'draggable': true, 
+				
+			});
+graph.render(layer);
+
+</script>
+</html>

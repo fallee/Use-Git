@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>paper demo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="script/paper-v0.9.12.js"></script>
+  <script type="text/paperscript" canvas="canvas">
+    var point = new Point(view.center.x, view.center.y);
+    console.log(point);
+    var path = new Path.Circle(point, 30);
+    path.fillColor = '#0bb';
+    
+    console.log(path.exportSVG());
+    console.log(path.exportJSON());
+    showChart();
+
+    function onResize(event){
+      
+      path.position=view.center;
+     // path.translate(view.center-path.position);
+    }
+    function onMouseMove(event){
+      //markPoint.position=event.point;
+      showMarkLine(event,"red");
+    }
+    function showChart(){
+      var bounds=view.bounds;
+      var axis={
+         offsetLeft:30,
+         offsetRight:30,
+         offsetTop:30,
+         offsetBottom:30,
+         width:1,
+         color:"green"
+      };
+      var axisX=new Path.Rectangle({
+        point:[bounds.x+axis.offsetLeft-5,bounds.y+bounds.height-axis.offsetBottom],
+        size:[bounds.width-axis.offsetLeft-axis.offsetRight,axis.width],
+        fillColor:axis.color
+        
+      });
+      var axisY=new Path.Rectangle({
+        point:[bounds.x+axis.offsetLeft,bounds.y+axis.offsetTop+5],
+        size:[axis.width,bounds.height-axis.offsetTop-axis.offsetBottom],
+        fillColor:axis.color
+      });
+      console.log(axisX.bounds);
+    }
+    function showMarkLine(event,color){
+      var p=new Path.Circle({
+        center:event.point,
+        radius:2,
+        fillColor:color,
+        strokeColor:"#ccc",
+        strokeWidth:1
+      });
+      p.removeOnMove();
+      var x=new Path.Rectangle({
+        point:[view.bounds.x,event.point.y],
+        size:[view.bounds.width,1],
+        fillColor:color,
+        strokeWidth:0
+         
+      });
+      x.removeOnMove();
+      var y=new Path.Rectangle({
+        point:[event.point.x,view.bounds.y],
+        size:[1,view.bounds.height],
+        fillColor:color,
+        strokeWidth:0
+         
+      });
+      y.removeOnMove();
+    }
+  </script>
+</head>
+<body>
+	<canvas id="canvas" resize></canvas>
+</body>
+</html>
