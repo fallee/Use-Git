@@ -1,0 +1,128 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>DEMO 05 for SVG element</title>
+<script src="lib/d3.v3.min.js"></script>
+<style>
+/**chart10*/
+.chart10 .bar {
+  fill: steelblue;
+}
+.chart10 .bar2 {
+  fill: red;
+}
+
+.chart10 .bar:hover {
+  fill: brown;
+}
+
+.chart10 .axis {
+  font: 10px sans-serif;
+}
+
+.chart10 .axis path,
+.chart10 .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.chart10 .x.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+	<div id="chart10" class="chart10"><h3>CHART 10 columns</h3></div>
+  <script>
+
+  /** show bar chart 10*/
+  (function(){
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10, "");
+
+    var svg = d3.select("#chart10").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    d3.csv("demo06.csv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.time; }));
+      y.domain([0, d3.max(data, function(d) { return d.height; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("time");
+
+      svg.selectAll(".bar2")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar2")
+          .attr("x", function(d) { return x(d.time)+(x.rangeBand()/2); })
+          .attr("width", 1)
+          .attr("y", function(d) { return y(d.height); })
+          .attr("height", function(d) { return y(d.low); });
+      svg.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.time); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.open); })
+          .attr("height", function(d) { return y(d.close); });
+
+//      var line = d3.svg.line()
+//        .x(function(d) { return d.x; })
+//        .y(function(d) { return d.y; })
+//        .interpolate("basis");
+//      var lineX=svg.append("path");
+//      svg.append("g").attr("style","pointer-events: all;").append("rect")
+//        .attr("style","visibility: hidden; cursor: crosshair;")
+//        .attr("width",width + margin.left + margin.right)
+//        .attr("height", height + margin.top + margin.bottom)
+//        .on("mousemove",function(){ 
+//          lineX.datum([{x:0,y:10},{x:100,y:10}])
+//             .attr("class", "line")
+//             .attr("d", line);
+//          //console.log(d3.event);
+//          console.log(lineX);
+//          });
+
+    });
+
+    function type(d) {
+      d.height = +d.height;
+      return d;
+    }
+  })();
+  // show bar chart 10*/
+  </script>
+</body>

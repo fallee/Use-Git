@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>DEMO 02 for D3JS</title>
+  <script src="lib/d3.v3.min.js"></script>
+</head>
+<body>
+    <p></p>
+  <div>
+    DIV01
+    <h1>H1测试文本</h1>
+    <p>P01测试文本</p>
+    <p>P02测试文本</p>
+  </div>
+  <div>
+    DIV02
+    <h2>H2测试文本</h2>
+    <p>P03测试文本</p>
+    <p>P04测试文本</p>
+  </div>
+    <p>P05测试文本</p>
+    <p>P06测试文本</p>
+  <script>
+    d3.selectAll("div").style("color", "#999");
+    d3.select("body").style("background-color", "#ccc");
+    d3.selectAll("p").style("color", function(d, i) {
+      return i % 2 ? "red" : "blue";
+    });
+    
+    d3.select("body").selectAll("p")
+      .data([4, 8, 15, 16, 23, 42,64,82,99])  // .enter() 每个没有同元素对应的数据项 append 追加到父元素上
+      .enter().append("p")
+        .text(function(d) { return "I’m number " + d + "!"; });
+    d3.selectAll("p")
+    .data([10, 16, 15, 16, 23, 42])
+    .style("font-size", function(d) { return d + "px"; });
+    var div=d3.select("body").selectAll("div")
+      .data([4, 8, 15, 16, 23, 42]);
+      div.enter().append("div")
+        .text(function(d) { return d; });
+      //   div.exit().remove();
+      d3.select("h2").transition()
+         .style("background-color", "black");
+      d3.selectAll("circle").transition()
+      .duration(750)
+      .delay(function(d, i) { return i * 10; })
+      .attr("r", function(d) { return Math.sqrt(d * scale); });
+  </script>
+
+</body>
+</html>

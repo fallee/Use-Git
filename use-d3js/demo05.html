@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>DEMO 05 for SVG element</title>
+<script src="lib/d3.v3.min.js"></script>
+<style>
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 0.5px;
+}
+</style>
+<body>
+  <div id="svg01"></div>
+  <script>
+(function(){
+  var width=800,height=600;
+//  var data=[{x:0,y:0},{x:10,y:20},{x:20,y:20},{x:40,y:20}];
+  var data=[{x:10,y:10},{x:height,y:10}];
+  var svg=d3.select("#svg01").append("svg")
+          .attr("width",width)
+          .attr("height",height);
+  var line = d3.svg.line()
+    .x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+    .interpolate("basis");
+  svg.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line);
+})();
+  </script>
+</body>

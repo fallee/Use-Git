@@ -1,0 +1,112 @@
+<!doctype html>
+<meta charset=utf-8>
+  <title>ref 01 </title>
+  <script src="lib/d3.v3.js"></script>
+  <script src="lib/qunit-1.12.0.js"></script>
+  <link rel="stylesheet" href="lib/qunit-1.12.0.css">
+  <style>
+  </style>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <div id="msg"></div>
+  <div id="ref01_01">
+    <p id="ref01_01_p1">p id="ref01_01_p1"</p>
+    <p class="cls01" color="color red">p class="cls01" color="color red"</p>
+    <p id="ref01_01_p3">p id="ref01_01_p3"</p>
+    <div class="cls01 cls02" color="red">div class="cls01 cls02" color="red"</div>
+    <div class="cls01" color="red color">div class="cls01" color="red color"</div>
+    <div color="redcolor">div color="redcolor"</div>
+    <div color="somered">div color="somered"</div>
+    <div name="abc">name=<span style="color=red">abc span</span></div>
+    <div color="red-2">color="red-2"<span> span </span></div>
+    <pre>pre</pre>
+  </div>
+  <div id="ref01_02">
+    <p>P1</p>
+    <p class="cls01">P2 .cls01</p>
+    <p id="p03" color="color red">P3</p>
+    <div class="cls01" color="red">DIV .cls01</div>
+    <div class="cls01" color="red color">DIV .cls01 color=red color</div>
+  </div>
+  <script>
+    test( "选择器测试", function() {
+      //http://www.w3.org/TR/css3-selectors/#selectors
+      var c=d3.select("#ref01_01");
+      equal(c.select("#ref01_01_p1").html(),"p id=\"ref01_01_p1\"","#ref01_01_p1元素的内容跟预定的一致");
+      equal(c.select("p").attr("id"),"ref01_01_p1","第一个P元素跟#ref01_01_p1相同");
+      equal(c.selectAll("p").size(),3,"找到3个P标签元素");
+      equal(c.selectAll(".cls01").size(),3,"找到3个class为cls01的元素");
+      equal(c.selectAll("div.cls01").size(),2,"找到2个class为cls01的div元素");
+      equal(c.selectAll("[color]").size(),6,"找到6个含有属性color的元素");
+      equal(c.selectAll("[color=red]").size(),1,"找到1个属性color=red的元素");
+      equal(c.selectAll("[color$=red]").size(),3,"找到2个属性color的值以red结尾的元素");
+      equal(c.selectAll("[color^=red]").size(),4,"找到4个属性color的值以red开头的元素");
+      equal(c.selectAll("[color~=red]").size(),3,"找到3个属性color的值包含red单词的元素");
+      equal(c.selectAll("[color=red],[color=somered]").size(),2,"找到2个属性color的值等于red或者somered的元素");
+      equal(c.selectAll("[color*=red]").size(),6,"找到6个属性color的值包含red字符的元素");
+      equal(c.selectAll("[color|=red]").size(),2,"找到2个属性color的值等于red或者以red单词开头连字符分隔的元素");
+      equal(c.selectAll("*").size(),12,"找到12个元素");
+      equal(c.selectAll("*:nth-child(1)").size(),3,"第一个子元素");// 第一个p,第一个span,第一个span # 2n+1 odd 2n+0 even
+      equal(c.selectAll("*:nth-last-child(1)").size(),3,"最后一个子元素"); // 最后一个span,最后一个span,最后一个div
+      equal(c.selectAll("*:nth-of-type(2)").size(),2,"每个类别的元素的第2个子元素");//p , div  # span 只有一个元素 
+      equal(c.selectAll("*:nth-last-of-type(1)").size(),5,"每个类别的元素的倒数第1个子元素"); // p, span, div, span # 同一父元素下
+      equal(c.selectAll("*:first-child").size(),3,"每个级别下的第1个子元素"); // p, span
+      equal(c.selectAll("*:last-child").size(),3,"每个级别下的最后一个子元素"); // p, span
+      equal(c.selectAll("*:first-of-type").size(),5,"每个类别的元素的第一个子元素"); // 
+      equal(c.selectAll("*:last-of-type").size(),5,"每个类别的元素的最后一个子元素"); // 
+      equal(c.selectAll("*:only-child").size(),2,"元素的元素"); // span,span
+      equal(c.selectAll("*:only-of-type").size(),3,"同级别下只有一个同一类型的子元素"); // span,span,pre
+      
+      //equal(c.selectAll("*:empty"),"");
+      //equal(c.selectAll("*:link"),"");
+      //equal(c.selectAll("*:visited"),"");
+      //equal(c.selectAll("*:active"),"");
+      //equal(c.selectAll("*:hover"),"");
+      //equal(c.selectAll("*:focus"),"");
+      //equal(c.selectAll("*:target"),"");
+
+      //:lang :enabled :disabled :checked 
+      
+      //::first-line ::first-letter ::before ::after
+      
+      equal(c.selectAll("*:not(div)").size(),6,"*:not(div)");
+      // E F    # E的子节点和子节点的子节点F
+      // E > F  # E的子节点F
+      // E + F  # E 之前的F
+      // E ~ F  # E 之后的F
+    });
+  var test01=function(){
+    console.log("START");
+
+    //select 
+    //tag("div"),class(".classname"),unique identifier("#id"),attribute("[color=red]")
+    // , containment("parent child"),and(".this.that"),or(".this,that")
+    var test0101=function(){
+    var container=d3.select("#ref01_01");
+      container.select("p")
+        .text(function(){return appendSelected.call(this," is Selected('p')")});
+      container.selectAll(".cls01")
+        .text(function(){return appendSelected.call(this," is Selected('.cls01')")});
+      container.selectAll("#p03")
+        .text(function(){return appendSelected.call(this," is Selected('#p03')")});
+      container.selectAll("[color$=color]")
+        .text(function(){return appendSelected.call(this," is Selected('[color$=color]')")});
+      container.selectAll("[color^=r]")
+        .text(function(){return appendSelected.call(this," is Selected('[color^=r]')")});
+      container.selectAll("[color~=red]")
+        .text(function(){return appendSelected.call(this," is Selected('[color~=red]')")});
+      function appendSelected(msg){
+        return d3.select(this).text()+msg;
+      }
+    };
+    //test0101();
+    // getter & setter
+    var test0102=function(){
+      var container=d3.select("#ref01_02");
+
+    }
+  };
+  d3.select("body").attr("onload",function(){test01();});
+  </script>
+</body>

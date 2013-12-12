@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+<body>
+<div id="chart"></div>
+<pre id="rawdata">
+letter	frequency
+A	.08167
+B	.01492
+C	.02782
+D	.04253
+E	.12702
+F	.02288
+G	.02015
+H	.06094
+I	.06966
+J	.00153
+K	.00772
+L	.04025
+M	.02406
+N	.06749
+O	.07507
+P	.01929
+Q	.00095
+R	.05987
+S	.06327
+T	.09056
+U	.02758
+V	.00978
+W	.02360
+X	.00150
+Y	.01974
+Z	.00074
+</pre>
+<script src="lib/d3.v3.min.js"></script>
+<script>
+
+var margin = { //为坐标轴留白
+    top: 20
+    ,right: 20
+    , bottom: 30
+    , left: 40
+    },
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal() // x轴比例尺
+    .rangeRoundBands([0, width], .1); // 宽度
+
+var y = d3.scale.linear() // y轴比例尺
+    .range([height, 0]); // 高度
+
+var xAxis = d3.svg.axis() // x轴刻度线
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis() // y轴刻度线
+    .scale(y)
+    .orient("left")
+    .ticks(10, "%"); // 
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//d3.tsv("data.tsv", type, function(error, data) {
+var data=d3.tsv.parse(d3.select("#rawdata").html());
+data=data.map(type);
+function draw(data){
+  x.domain(data.map(function(d) { return d.letter; }));
+  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+//console.log(xAxis());
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Frequency");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.letter); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.frequency); })
+      .attr("height", function(d) { return height - y(d.frequency); });
+
+};
+draw(data);
+
+function type(d) {
+  d.frequency = +d.frequency;
+  return d;
+}
+
+</script>

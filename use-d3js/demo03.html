@@ -1,0 +1,565 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>DEMO 03 for D3JS Let's Make a Bar Chart</title>
+<script src="lib/d3.v3.min.js"></script>
+<style>
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+
+
+/**chart06*/
+.chart06 rect {
+  fill: steelblue;
+}
+
+.chart06 text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+/**chart08*/
+
+
+.chart08 .bar {
+  fill: steelblue;
+}
+
+.chart08 .axis text {
+  font: 10px sans-serif;
+}
+
+.chart08 .axis path,
+.chart08 .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.chart08 .x.axis path {
+  display: none;
+}
+
+/**chart09*/
+.chart09 .bar {
+  fill: steelblue;
+}
+
+.chart09 .bar:hover {
+  fill: brown;
+}
+
+.chart09 .axis {
+  font: 10px sans-serif;
+}
+
+.chart09 .axis path,
+.chart09 .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.chart09 .x.axis path {
+  display: none;
+}
+
+/**chart10*/
+.chart10 .bar {
+  fill: steelblue;
+}
+
+.chart10 .bar:hover {
+  fill: brown;
+}
+
+.chart10 .axis {
+  font: 10px sans-serif;
+}
+
+.chart10 .axis path,
+.chart10 .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.chart10 .x.axis path {
+  display: none;
+}
+
+.chart10 .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 0.5px;
+}
+
+</style>
+<body>
+	<div id="chart" class="chart">
+    <h3>CHART 00 use html</h3>
+    <div style="width: 40px;">4</div>
+    <div style="width: 80px;">8</div>
+    <div style="width: 150px;">15</div>
+    <div style="width: 160px;">16</div>
+    <div style="width: 230px;">23</div>
+    <div style="width: 420px;">42</div>
+  </div>
+	<div id="chart01" class="chart"><h3>CHART 01 use html</h3></div>
+	<div id="chart02" class="chart"><h3>CHART 02 use scale</h3></div>
+  <div id="chart03" class="chart">
+    <h3>CHART 03 use static svg</h3>
+    <svg width="420" height="120">
+      <g transform="translate(0,0)">
+        <rect width="40" height="19"></rect>
+        <text x="37" y="9.5" dy=".35em">4</text>
+      </g>
+      <g transform="translate(0,20)">
+        <rect width="80" height="19"></rect>
+        <text x="77" y="9.5" dy=".35em">8</text>
+      </g>
+      <g transform="translate(0,40)">
+        <rect width="150" height="19"></rect>
+        <text x="147" y="9.5" dy=".35em">15</text>
+      </g>
+      <g transform="translate(0,60)">
+        <rect width="160" height="19"></rect>
+        <text x="157" y="9.5" dy=".35em">16</text>
+      </g>
+      <g transform="translate(0,80)">
+        <rect width="230" height="19"></rect>
+        <text x="227" y="9.5" dy=".35em">23</text>
+      </g>
+      <g transform="translate(0,100)">
+        <rect width="420" height="19"></rect>
+        <text x="417" y="9.5" dy=".35em">42</text>
+      </g>
+    </svg>
+  </div>
+	<div id="chart04" class="chart"><h3>CHART 04 use svg</h3></div>
+	<div id="chart05" class="chart">
+    <h3>CHART 05 use svg & data from tsv</h3>
+    <pre id="chart05_tsv_data">name	value
+Locke	4
+Reyes	8
+Ford	15
+Jarrah	16
+Shephard	23
+Kwon	42</pre>
+  </div>
+	<div id="chart06" class="chart06"><h3>CHART 06 rotating into columns</h3></div>
+	<div id="chart07" class="chart06"><h3>CHART 07 columns use d3.scale.ordinal</h3></div>
+	<div id="chart08" class="chart08"><h3>CHART 08 columns use Axes</h3></div>
+	<div id="chart09" class="chart09"><h3>CHART 09 columns</h3></div>
+	<div id="chart10" class="chart10"><h3>CHART 10 columns</h3></div>
+<script>
+	/** show hello world * / 
+	var body=d3.select("body");
+	var div = body.append("div");
+	div.html("hello world");
+	//show helloworld */
+
+	/** show bar chart 01*/
+  (function(){
+	var data=[4,8,15,16,23,42];
+	d3.select("#chart01")
+		.selectAll("div")
+		.data(data)
+		.enter() // 进入绑定数据对应的每个不存在的div
+		.append("div") // 在父元素中追加新元素
+			.style("width",function(d){return d*10+"px"; }) // 通过绑定的数据设置宽度
+			.text(function(d){return d;}); // 通过绑定的数据设置值
+  })();
+	//show barchart 01*/
+
+  /** show bar chart 02*/
+  (function(){
+  var data=[4,8,15,16,23,42];
+  var x=d3.scale.linear()
+        .domain([0,d3.max(data)])
+        .range([0,420]);
+  d3.select("#chart02")
+    .selectAll("div")
+    .data(data)
+    .enter()
+    .append("div")
+        .style("width",function(d){return x(d)+"px";})
+        .text(function(d){return d;});
+  })();
+  // show bar chart 02*/
+  /** show bar chart 04*/
+  (function(){
+  var data=[4,8,15,16,23,42];
+  var width=420,
+      barHeight=20;
+  var x=d3.scale.linear()
+        .domain([0,d3.max(data)])
+        .range([0,width]);
+  
+  var chart=d3.select("#chart04")
+        .append("svg")
+          .attr("width",width)
+          .attr("height",barHeight*data.length);
+
+
+
+  var bar = chart.selectAll("g")
+              .data(data)
+              .enter()
+              .append("g")
+                .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+  
+  bar.append("rect")
+      .attr("width",x) // call x(d)
+      .attr("height",barHeight-1);
+  bar.append("text")
+      .attr("x",function(d){ return x(d)-3;})
+      .attr("y",barHeight/2)
+      .attr("dy",".35em")
+      .text(function(d){return d;});
+
+  })();
+  // show bar chart 04*/
+  /** show bar chart 05*/
+  (function(){
+
+  var width = 420,
+      barHeight = 20;
+
+  var x = d3.scale.linear()
+      .range([0, width]);
+
+  var chart = d3.select("#chart05")
+      .append("svg")
+      .attr("width", width);
+
+  var render=function(data){
+    //console.log(data);
+    x.domain([0, d3.max(data, function(d) { return d.value; })]);
+    chart.attr("height",barHeight*data.length);
+    var bar = chart.selectAll("g")
+          .data(data)
+          .enter().append("g")
+          .attr("transform",function(d,i){return "translate(0,"+i*barHeight+")";});
+    bar.append("rect")
+        .attr("width",function(d){return x(d.value);})
+        .attr("height",barHeight-1);
+    bar.append("text")
+        .attr("x",function(d){return x(d.value)-3;})
+        .attr("y",barHeight/2)
+        .attr("dy",".35em")
+        .text(function(d){return d.name+" "+d.value;});
+  };
+  
+  //d3.tsv("demo03.05.tsv").row(type).get(function(error,data){render(data);});
+  var data=d3.tsv.parse(d3.select("#chart05_tsv_data").html(),type);
+  render(data);
+//  d3.tsv("demo03.05.tsv",type,function(error,data){render(data);});
+
+  function type(d){
+    d.value=+d.value;// string to number
+    return d;
+  }
+  })();
+  // show bar chart 05*/
+  /** show bar chart 06*/
+  (function(){
+    var width = 960,
+    height = 500;
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var chart = d3.select("#chart06").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.tsv("demo03.06.tsv", type, function(error, data) {
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+      var barWidth = width / data.length;
+
+      var bar = chart.selectAll("g")
+          .data(data)
+        .enter().append("g")
+          .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+      bar.append("rect")
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); })
+          .attr("width", barWidth - 1);
+
+      bar.append("text")
+          .attr("x", barWidth / 2)
+          .attr("y", function(d) { return y(d.value) + 3; })
+          .attr("dy", ".75em")
+          .text(function(d) { return d.value; });
+    });
+
+    function type(d) {
+      d.value = +d.value; // coerce to number
+      return d;
+    }
+  })();
+  // show bar chart 06*/
+  /** show bar chart 07*/
+  (function(){
+    var width = 960,
+        height = 500;
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var chart = d3.select("#chart07").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.tsv("demo03.06.tsv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.name; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+
+      var bar = chart.selectAll("g")
+          .data(data)
+        .enter().append("g")
+          .attr("transform", function(d, i) { return "translate(" + x(d.name) + ",0)"; });
+
+      bar.append("rect")
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); })
+          .attr("width", x.rangeBand());
+
+      bar.append("text")
+          .attr("x", x.rangeBand() / 2)
+          .attr("y", function(d) { return y(d.value) + 3; })
+          .attr("dy", ".75em")
+          .text(function(d) { return d.value; });
+    });
+
+    function type(d) {
+      d.value = +d.value; // coerce to number
+      return d;
+    }
+  })();
+  // show bar chart 07*/
+  /** show bar chart 08*/
+
+  (function(){
+
+    var margin = {top: 20, right: 30, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var chart = d3.select("#chart08").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.tsv("demo03.08.tsv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.name; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+      chart.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      chart.append("g")
+          .attr("class", "y axis")
+          .call(yAxis);
+
+      chart.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.name); })
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); })
+          .attr("width", x.rangeBand());
+    });
+
+    function type(d) {
+      d.value = +d.value; // coerce to number
+      return d;
+    }
+  })();
+  // show bar chart 08*/
+  /** show bar chart 09*/
+  (function(){
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10, "%");
+
+    var svg = d3.select("#chart09").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.tsv("demo03.09.tsv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.letter; }));
+      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Frequency");
+
+      svg.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.letter); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.frequency); })
+          .attr("height", function(d) { return height - y(d.frequency); });
+
+    });
+
+    function type(d) {
+      d.frequency = +d.frequency;
+      return d;
+    }
+  })();
+  // show bar chart 09*/
+  /** show bar chart 10*/
+  (function(){
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10, "%");
+
+    var svg = d3.select("#chart10").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    d3.tsv("demo03.09.tsv", type, function(error, data) {
+      x.domain(data.map(function(d) { return d.letter; }));
+      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Frequency");
+
+      svg.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.letter); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.frequency); })
+          .attr("height", function(d) { return height - y(d.frequency); });
+
+//      var line = d3.svg.line()
+//        .x(function(d) { return d.x; })
+//        .y(function(d) { return d.y; })
+//        .interpolate("basis");
+//      var lineX=svg.append("path");
+//      svg.append("g").attr("style","pointer-events: all;").append("rect")
+//        .attr("style","visibility: hidden; cursor: crosshair;")
+//        .attr("width",width + margin.left + margin.right)
+//        .attr("height", height + margin.top + margin.bottom)
+//        .on("mousemove",function(){ 
+//          lineX.datum([{x:0,y:10},{x:100,y:10}])
+//             .attr("class", "line")
+//             .attr("d", line);
+//          //console.log(d3.event);
+//          console.log(lineX);
+//          });
+
+    });
+
+    function type(d) {
+      d.frequency = +d.frequency;
+      return d;
+    }
+  })();
+  // show bar chart 10*/
+
+
+
+</script>
+</body>

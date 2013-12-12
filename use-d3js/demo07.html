@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>demo 07 transitions</title>
+<script src="lib/d3.v3.min.js"></script>
+<style>
+body{margin:0px;}
+svg {
+  //border:solid 1px #666;
+  overflow:hidden;
+}
+
+path {
+  fill:yellow;
+  stroke:#000;
+  stroke-width:.5px;
+}
+
+circle {
+  fill:#ccc;
+  stroke:#000;
+  pointer-events:none;
+}
+svg {border:1px solid black;}
+}
+</style>
+<body>
+	<div id="chart01">
+		<span id="title"> </span>
+		<button id="button"> btn </button>
+		<br >
+		
+	</div>
+	<script>
+	var svg=d3.select("#chart01").append("svg").attr("width",800).attr("height",600);
+	var mySquare=svg.append("rect")
+		  .attr("x",60)
+		  .attr("y",60)
+		  .attr("width",60)
+		  .attr("height",60)
+		  .style("fill","red");
+	d3.select("#button").on("click",function(){
+		console.log("buttion click");
+		change();
+	});
+	var change=function(){
+		if(mySquare.attr("x")>300){
+			mySquare.transition().duration(1000)
+	  			.attr("x",20)
+		  		.style("fill","red");
+  		}else{
+			mySquare.transition().duration(1000).ease("elastic")
+	  			.attr("x",320)
+		  		.style("fill","blue");
+  		}
+	}
+	</script>
+</body>

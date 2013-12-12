@@ -1,0 +1,86 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>line</title>
+<script src="lib/d3.v3.js"></script>
+<style>
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+</style>
+<body>
+  <div id="chart"></div>
+  <pre id="rawData">
+x,y
+10,10
+20,20
+30,30
+40,20
+50,10</pre>
+  <script>
+    var margin={top:10,bottom:10,left:10,right:10}
+      ,width=800-margin.top-margin.bottom
+      ,height=600-margin.top-margin.bottom;
+
+    var x = d3.scale.linear()
+      .range([0,d3.min([width,height])]);
+    var y = d3.scale.linear()
+      .range([d3.min([width,height]),0]);
+
+    var line = d3.svg.line()
+      .x(function(d) { return x(d.x); })
+      .y(function(d) { return y(d.y); })
+      .interpolate("linear");//linear-closed step basis bundle  cardinal monotone
+
+    var data=d3.csv.parse(d3.select("#rawData").html());
+    data=new Array();
+    var data2=new Array();
+    //for(var i=-50;i<=50;i++){
+    //  data[data.length]={x:i,y:i*i};
+    //} 
+    for(var i=-500;i<=500;i+=100){
+      data[data.length]={x:i,y:Math.sqrt(500*500-i*i)};
+      data2[data2.length]={x:i,y:-Math.sqrt(500*500-i*i)};
+    }
+    data2.reverse();
+    console.log(data);
+    console.log(data2);
+    data=d3.merge([data,data2]);
+    //data.sort(function(a,b){return a.x-b.x;});
+    console.log(data);
+    //console.log(data.concat(data2));
+
+    var xMax=d3.max(data,function(d){return d.x;});
+    var xMin=d3.min(data,function(d){return d.x;});
+    var yMax=d3.max(data,function(d){return d.y;});
+    var yMin=d3.min(data,function(d){return d.y;});
+
+    x.domain([xMin,xMax]);
+    y.domain([yMin,yMax]);
+    console.log([xMin,xMax,yMin,yMax]);
+    
+    
+    var svg=d3.select("#chart").append("svg").attr("width",width+margin.left+margin.right).attr("height",height+margin.top+margin.bottom)
+          .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+//    svg.selectAll("path")
+
+    svg.append("path").attr("class","line").datum(data).attr("d",line);//function(d){return line(d)+"Z";});
+    svg.append("path").attr("class","line").datum(
+      [{x:xMin,y:yMin},{x:xMax,y:yMin}]).attr("d",line);
+
+    svg.append("path").attr("class","line")
+      .datum([{x:(xMin+xMax)/2,y:yMin},{x:(xMin+xMax)/2,y:yMax}])
+       .attr("d",line);
+
+     // .data([0, 0.2, 0.4, 0.6, 0.8, 1])
+     // .enter().append("path")
+     //   .attr("d", function(d) { return line.tension(d)(data); });
+    //var g=svg.append("g");
+    //g.append("path")
+    //  .attr("d", line);
+    //g.append("path")
+    //.attr("d", function(d) { return line(d) + "Z"; });
+  </script>
+</body>

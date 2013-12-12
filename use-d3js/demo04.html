@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>DEMO04 for D3JS  Enter&exit </title>
+<script src="lib/d3.v3.min.js"></script>
+<body>
+	<div id="demo0401">
+		<h3>demo0401</h3>
+		<p>1</p>
+		<p>2</p>
+		<p>3</p>
+		<p>4</p>
+		<p>5</p>
+	</div>
+	<div id="demo0402">
+		<h3>demo0402</h3>
+		<p>1</p>
+		<p>2</p>
+		<p>3</p>
+		<p>4</p>
+		<p>5</p>
+	</div>
+	<script>
+		var ps=d3.select("#demo0401") // 选定container
+			.selectAll("p")
+			.data(["a","b","c","d"]);
+		ps.html(function(d,i){return d3.select(this).html()+" update "+i+":"+d;});
+		ps.exit().html(function(d,i){ return d3.select(this).html()+" exit "+i;});
+
+		var ps2=d3.select("#demo0402")
+			.selectAll("p")
+			.data([1,2,3,4,5,6,7,8]);
+			ps2.html(function(){return d3.select(this).html()+" update "});
+		ps2.enter()
+			.append("p")
+				.html(function(d){return d3.select(this).html()+" enter "+d;});
+	</script>
+</body>
