@@ -1057,6 +1057,10 @@ window.Chart = function(paper){
 		scaleHop = Math.floor(scaleHeight/calculatedScale.steps);
 		calculateXAxisSize();
     /**/
+    
+   // drawScale(1);
+   // drawBars(1);
+    
     var time=0;
     // 动画
     view.attach("frame",function(event){
@@ -1067,7 +1071,8 @@ window.Chart = function(paper){
         time+=0.1;
       }
     });
-    console.log(view);
+    
+    //console.log(view);
     /** /
 		animationLoop(config,drawScale,drawBars,ctx);		
     //*/
@@ -1076,10 +1081,10 @@ window.Chart = function(paper){
         cs=c.replace("rgba(","").replace(")","").split(",");
 //        console.log("a "+cs);
         var color= new Color(cs[0]/255,cs[1]/255,cs[2]/255,cs[3]);
-        console.log(color);
+        //console.log(color);
         return color;
       }
-      console.log(c.indexOf("rgba"));
+      //console.log(c.indexOf("rgba"));
       return c;
     }
 		function drawBars(animPc){
@@ -1103,7 +1108,7 @@ window.Chart = function(paper){
             strokeColor:rgba(data.datasets[i].strokeColor),
             strokeWidth:config.barStrokeWidth,
             closed: true});
-            console.log("bar fillcolor alpha "+data.datasets[i].fillColor+" "+bar.fillColor.alpha);
+            //console.log("bar fillcolor alpha "+data.datasets[i].fillColor+" "+bar.fillColor.alpha);
 
             bar.onMouseEnter=function(event){
               this.oldColor=this.fillColor;
@@ -1134,7 +1139,7 @@ window.Chart = function(paper){
 		function drawScale(){
       if(!Self.scale){Self.scale={};}
 
-      _.each(Self.scale,function(item,key){item.remove()});
+      _.each(Self.scale,function(item,key){console.log("remove "+key);item.remove()});
 			//X axis line
       /**/
       var xAxisLine=new Path({
@@ -1161,7 +1166,7 @@ window.Chart = function(paper){
 			for (var i=0; i<data.labels.length; i++){
         var text=null;
 				if (rotateLabels > 0){
-          var text = new PointText({
+            text = new PointText({
             point: [yAxisPosX + i*valueHop,xAxisPosY + config.scaleFontSize],
             content: data.labels[i],
             fillColor: rgba(config.scaleFontColor),
@@ -1171,7 +1176,7 @@ window.Chart = function(paper){
             justification:"right"
           });
         }else{
-          var text = new PointText({
+            text = new PointText({
             point: [yAxisPosX + i*valueHop + valueHop/2,xAxisPosY + config.scaleFontSize+3],
             content: data.labels[i],
             fillColor: rgba(config.scaleFontColor),
@@ -1268,7 +1273,7 @@ window.Chart = function(paper){
             strokeWidth:config.scaleGridLineWidth,
             closed: false});
         }
-        Self.scale["y_line_"+i]=line;
+        Self.scale["y_line_"+j]=line;
         
         if (config.scaleShowLabels){
           var text = new PointText({

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>D3.chart Boilerplate Example</title>
+		<script src="lib/d3.v3.js"></script>
+    <script src="lib/d3.chart.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+    <script src="../src/baseCandlestick.js"></script>
+    <script src="../src/candlestick.js"></script>
+    <script src="../src/volume.js"></script>
+
+    <style type='text/css'>
+      html{
+        background: #21242A;
+      }
+
+      a{
+        color: white;
+      }
+
+      rect.candle{
+        stroke: #ccc;
+        fill: green;
+      }
+      rect.candle.fall{
+        fill: red;
+      }
+      rect.ohlc{
+        fill: #ccc;
+      }
+
+      rect.volume{
+        fill: green;
+      }
+
+      rect.volume.fall{
+        fill: red;
+      }
+
+      line.wick {
+        stroke: #ccc;
+      }
+
+      line.grid {
+        stroke: #43454B;
+      }
+
+      text.yLabel{
+        fill: #666;
+        font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 12px;
+      }
+      rect.last-trade-slab {
+        fill:green;
+      }
+      rect.last-trade-slab.fall {
+        fill:red;
+      }
+
+      text.last-trade-label{
+        fill: white;
+        font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 12px;
+      }
+
+      rect.info{
+        fill: black;
+      }
+
+      text.info {
+        fill: #666;
+        font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 10px;
+      }
+
+      text.info tspan{
+        fill: #666;
+      }
+
+      text.info tspan.titled-title{
+        font-weight: bold;
+      }
+
+      text.info tspan.titled-data{
+        fill: white;
+      }
+
+      text.info tspan.title{
+        fill: #0074bc;
+        font-weight: bold;
+      }
+
+      text.info tspan.date{
+        fill: white;
+        font-style: italic;
+      }
+
+      line.info {
+        stroke: #999;
+        stroke-dasharray: 5,5;
+      }
+
+      rect.open-line {
+        fill: #999;
+      }
+
+      .candlestick {
+        cursor: none;
+      }
+      
+      line.last-trade-price {
+        stroke: green;
+        stroke-dasharray: 5,5;
+      }
+      line.last-trade-price.fall {
+        stroke: red;
+      }
+
+      path.ema {
+        fill: none;
+        stroke: #0099CC;
+      }
+
+      path.bb {
+        fill: none;
+        stroke: yellow;
+      }
+    </style>
+	</head>
+	<body>
+    <a href='#' class='ohlc'>OHLC</a>
+    <a href='#' class='candlesticks'>Candlesticks</a>
+    <br />
+
+		<script src="ema_data.js"></script>
+		<script src="bb_data.js"></script>
+		<script src="datasrc.js"></script>
+		<script src="candlestick.js"></script>
+	</body>
+</html>

@@ -127,13 +127,15 @@
   x.ticks(10).map(function(d){console.log(d+":"+x(d));});
 
   var data = [{"date":"2012-03-20","total":3},{"date":"2012-03-21","total":8},{"date":"2012-03-22","total":2},{"date":"2012-03-23","total":10},{"date":"2012-03-24","total":3},{"date":"2012-03-25","total":20},{"date":"2012-03-26","total":12}];
+  data.map(function(d){d.datetime=new Date(d.date);return d;})
 
   x = d3.time.scale.utc()
-    .domain([new Date(data[0].date), d3.time.day.offset(new Date(data[data.length - 1].date), 1)])
+    .domain([d3.max(data,function(d){return d.datetime}), d3.time.day.offset(d3.min(data,function(d){return d.datetime}), 1)])
+//    .domain([new Date(data[0].date), d3.time.day.offset(new Date(data[data.length - 1].date), 1)])
     .rangeRound([0, 500]);
 
   x.ticks(10).map(function(d){console.log(d3.time.format("%Y-%m-%d %H:%M:%S")(d)+":"+x(d));});
-
+  //console.log();
 })();
 </script>
 </body>

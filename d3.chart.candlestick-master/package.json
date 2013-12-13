@@ -1,0 +1,29 @@
+{
+  "name": "d3.chart.candlestick",
+  "description": "A candlestick chart for d3.chart",
+  "version": "0.0.3",
+  "author": "Josh Adams <josh@isotope11.com>, Kent Russell <kent.russell@timelyportfolio.com>",
+  "license": "MIT Expat",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/isotope11/d3.chart.candlestick.git"
+  },
+  "keywords": [
+    "d3.js",
+    "visualization",
+    "svg",
+    "candlestick"
+  ],
+
+  "d3.chart": {
+    "version" : "0.1.0"
+  },
+
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-concat": "~0.1.3",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-watch" : "~0.3.1"
+  }
+}
