@@ -1,0 +1,135 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>bar chart</title>
+<script src="lib/d3.v3.js"></script>
+<style>
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+</style>
+<body onload="onload()">
+  <script>
+    function drawBarChart(){
+      console.log("BEGIN drawBarChart");
+      var margin = { //为坐标轴留白
+            top: 20
+            ,right: 20
+            , bottom: 30
+            , left: 40
+            },
+            width = 430 - margin.left - margin.right,
+            height = 260 - margin.top - margin.bottom,
+            barColor="#1f77b4",barHoldColor="#ff7f0e",
+            tickCount=5;
+            ;
+      var svg=d3.select("#chart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var x=d3.scale.ordinal()
+              .rangeRoundBands([0,width],.1,.1);
+      var y=d3.scale.linear()
+              .range([height,0]);
+
+      var data=d3.tsv.parse(d3.select("#data").html()).map(
+          function(d){
+            var d2={name:d.ATTRIBUTE_NAME,value:+d.POST_COUNT};
+            return d2;
+        });
+
+      console.log(data);
+      x.domain(data.map(function(d){return d.name;}));
+      // 计算y轴数值范围
+      var yrange=(function(data){
+        var min=d3.min(data,function(d){return d.value;});
+        var max=d3.max(data,function(d){return d.value;});
+        var padding=(max-min)/10;
+        var m1=min>=0?
+              (2*min-max>0?
+                (min-padding>0?min-padding:min-padding)
+                :0)
+              :min-padding;
+        var m2=max+(max-min)/10;
+        return [m1,m2];
+      })(data);
+      console.log("YRANGE "+yrange);
+      y.domain(yrange)
+        .nice(true);// 优化边界值
+      console.log(y.ticks(tickCount));
+//      刻度线
+      svg.append("g")
+          .selectAll(".yline").data(y.ticks(tickCount))
+          .enter().append("g")
+            .attr("class","bar")
+            .attr("transform",function(d){return "translate(0,"+y(d)+")";})
+            .append("line")
+              .attr("x2",width)
+              .attr("y2",0)
+              .style("stroke","#777")
+              .style("stroke-width",1)
+              .style("stroke-dasharray",function(d,i){ return i==0?"0":"2,2";});
+
+      
+//      轴线
+      var xAxis = d3.svg.axis() // x轴刻度线
+          .scale(x)
+          .orient("bottom");
+
+      var yAxis = d3.svg.axis() // y轴刻度线
+          .scale(y)
+          .orient("left")
+          .ticks(tickCount); // 
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + (height) + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+
+
+//      数据条
+      svg.append("g")
+          .selectAll(".bar").data(data)
+          .enter().append("rect")
+            .attr("class","bar")
+            .attr("x",function(d){return x(d.name);})
+            .attr("width",x.rangeBand())
+            .attr("y",function(d){return y(d.value);})
+            .attr("height",function(d){return height-y(d.value);})
+            .style("fill",barColor)
+            .on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
+            .on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);});
+
+
+
+      console.log("END drawBarChart");
+      
+    };
+    function onload(){
+      drawBarChart();
+    }
+  </script>
+  <div id="chart"></div>
+  <pre id="data">POST_COUNT	ID	ATTRIBUTE_NAME
+4	1	油耗
+5	2	内饰
+2	3	产地
+4	4	外观
+4	5	价格</pre>
+</body>
