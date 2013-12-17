@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>pie chart</title>
+<link href="css/drawChart.v01.css" rel="stylesheet">
+
+<script src="script/d3.v3.min.js"></script>
+<script src="script/drawChart.v01.js"></script>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.arc path {
+  stroke: #fff;
+}
+
+</style>
+<body onload="onload()">
+  <script>
+function onload(){
+  drawTopic();
+}
+function drawChartFromDiv(div){
+  var data=d3.tsv.parse(d3.select(div).html());
+    console.log("data: "+JSON.stringify(data));
+  data=data.map(function(d){
+      return {name:d.ATTRIBUTE_NAME,value:+d.POST_COUNT};
+  });
+  drawPieChart(data,"#chart");
+}
+function drawTopic(){
+  d3.tsv("http://192.168.1.58/42v/chart/analyse_topic_media.php",function(data){
+    data=data.map(function(d){
+      var d2={name:d.MEDIA_NAME,value:+d.POST_COUNT};
+      return d2;
+      });
+    console.log("data: "+JSON.stringify(data));
+    drawPieChart(data,"#chart");
+  });
+}
+  </script>
+  <div id="chart"></div>
+  <button onclick="drawTopic();">topic</button>
+  <pre id="data" onclick="drawChartFromDiv(this)">POST_COUNT	ID	ATTRIBUTE_NAME
+4	1	油耗
+5	2	内饰
+2	3	产地
+4	4	外观
+4	5	价格</pre>
+  <pre id="data2" onclick="drawChartFromDiv(this)">POST_COUNT	ID	ATTRIBUTE_NAME
+14	1	油耗
+25	2	内饰
+23	3	产地
+4	4	外观
+9	5	价格</pre>
+</body>

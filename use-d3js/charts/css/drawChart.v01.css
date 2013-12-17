@@ -1,0 +1,33 @@
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+/* line chart */
+.line .line {
+  fill: none;
+  stroke: #1f77b4;
+  stroke-width:2;
+}
+.circle .circle {
+  fill: #fff;
+  stroke: #1f77b4;
+  stroke-width:2;
+}
+
+/* pie chart */
+.arc path {
+  stroke: #fff;
+}
+
