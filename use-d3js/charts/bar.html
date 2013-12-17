@@ -21,8 +21,7 @@
 </style>
 <body onload="onload()">
   <script>
-    function drawBarChart(){
-      console.log("BEGIN drawBarChart");
+    function drawBarChart(dataUrl){
       var margin = { //为坐标轴留白
             top: 20
             ,right: 20
@@ -32,104 +31,123 @@
             width = 430 - margin.left - margin.right,
             height = 260 - margin.top - margin.bottom,
             barColor="#1f77b4",barHoldColor="#ff7f0e",
-            tickCount=5;
+            tickCount=5,
+            chartDiv="#chart"
             ;
-      var svg=d3.select("#chart").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      var x=d3.scale.ordinal()
-              .rangeRoundBands([0,width],.1,.1);
-      var y=d3.scale.linear()
-              .range([height,0]);
-
-      var data=d3.tsv.parse(d3.select("#data").html()).map(
+            
+      var data=d3.tsv.parse(d3.select(dataUrl).html()).map(
           function(d){
             var d2={name:d.ATTRIBUTE_NAME,value:+d.POST_COUNT};
             return d2;
         });
+      console.log("data: "+JSON.stringify(data));
+      drawChart(data);
+      function drawChart(data){
+        console.log("BEGIN drawBarChart");
+        // clear
+        d3.select(chartDiv).select("svg").remove();
+        var svg=d3.select(chartDiv)
+              .append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      console.log(data);
-      x.domain(data.map(function(d){return d.name;}));
-      // 计算y轴数值范围
-      var yrange=(function(data){
-        var min=d3.min(data,function(d){return d.value;});
-        var max=d3.max(data,function(d){return d.value;});
-        var padding=(max-min)/10;
-        var m1=min>=0?
-              (2*min-max>0?
-                (min-padding>0?min-padding:min-padding)
-                :0)
-              :min-padding;
-        var m2=max+(max-min)/10;
-        return [m1,m2];
-      })(data);
-      console.log("YRANGE "+yrange);
-      y.domain(yrange)
-        .nice(true);// 优化边界值
-      console.log(y.ticks(tickCount));
-//      刻度线
-      svg.append("g")
-          .selectAll(".yline").data(y.ticks(tickCount))
-          .enter().append("g")
-            .attr("class","bar")
-            .attr("transform",function(d){return "translate(0,"+y(d)+")";})
-            .append("line")
-              .attr("x2",width)
-              .attr("y2",0)
-              .style("stroke","#777")
-              .style("stroke-width",1)
-              .style("stroke-dasharray",function(d,i){ return i==0?"0":"2,2";});
+        var x=d3.scale.ordinal()
+                .rangeRoundBands([0,width],.1,.1);
+        var y=d3.scale.linear()
+                .range([height,0]);
 
-      
-//      轴线
-      var xAxis = d3.svg.axis() // x轴刻度线
-          .scale(x)
-          .orient("bottom");
+        x.domain(data.map(function(d){return d.name;}));
+        // 计算y轴数值范围
+        var yrange=(function(data){
+          var min=d3.min(data,function(d){return d.value;});
+          var max=d3.max(data,function(d){return d.value;});
+          var padding=(max-min)/10;
+          var m1=min>=0?
+                (2*min-max>0?
+                  (min-padding>0?min-padding:min-padding)
+                  :0)
+                :min-padding;
+          var m2=max+(max-min)/10;
+          return [m1,m2];
+        })(data);
+        console.log("YRANGE "+yrange);
+        y.domain(yrange)
+          .nice(true);// 优化边界值
+        console.log(y.ticks(tickCount));
+  //      刻度线
+        svg.append("g")
+            .selectAll(".yline").data(y.ticks(tickCount))
+            .enter().append("g")
+              .attr("class","bar")
+              .attr("transform",function(d){return "translate(0,"+y(d)+")";})
+              .append("line")
+                .attr("x2",width)
+                .attr("y2",0)
+                .style("stroke","#777")
+                .style("stroke-width",1)
+                .style("stroke-dasharray",function(d,i){ return i==0?"0":"2,2";});
 
-      var yAxis = d3.svg.axis() // y轴刻度线
-          .scale(y)
-          .orient("left")
-          .ticks(tickCount); // 
-      svg.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + (height) + ")")
-          .call(xAxis);
+        
+  //      轴线
+        var xAxis = d3.svg.axis() // x轴刻度线
+            .scale(x)
+            .orient("bottom");
 
-      svg.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
+        var yAxis = d3.svg.axis() // y轴刻度线
+            .scale(y)
+            .orient("left")
+            .ticks(tickCount); // 
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + (height) + ")")
+            .call(xAxis);
 
-
-//      数据条
-      svg.append("g")
-          .selectAll(".bar").data(data)
-          .enter().append("rect")
-            .attr("class","bar")
-            .attr("x",function(d){return x(d.name);})
-            .attr("width",x.rangeBand())
-            .attr("y",function(d){return y(d.value);})
-            .attr("height",function(d){return height-y(d.value);})
-            .style("fill",barColor)
-            .on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
-            .on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);});
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
 
 
+  //      数据条
+        svg.append("g")
+            .selectAll(".bar").data(data)
+            .enter().append("rect")
+              .attr("class","bar")
+              .attr("x",function(d){return x(d.name);})
+              .attr("width",x.rangeBand())
+              .attr("y",function(d){return y(d.value);})
+              .attr("height",function(d){return height-y(d.value);})
+              .style("fill",barColor)
+              .on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
+              .on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);})
+              .on("click",function(d){
+                  alert("data:"+JSON.stringify(d)
+                      +";event:"+d3.event.pageX+","+d3.event.pageY+";"
+                      +";mouse:"+d3.mouse(this));
+                });
 
-      console.log("END drawBarChart");
+
+
+        console.log("END drawBarChart");
+      }
       
     };
     function onload(){
-      drawBarChart();
+      drawBarChart("#data");
     }
   </script>
   <div id="chart"></div>
-  <pre id="data">POST_COUNT	ID	ATTRIBUTE_NAME
+  <pre id="data" onclick="drawBarChart(this)">POST_COUNT	ID	ATTRIBUTE_NAME
 4	1	油耗
 5	2	内饰
 2	3	产地
 4	4	外观
 4	5	价格</pre>
+  <pre id="data2" onclick="drawBarChart(this)">POST_COUNT	ID	ATTRIBUTE_NAME
+14	1	油耗
+25	2	内饰
+23	3	产地
+4	4	外观
+9	5	价格</pre>
 </body>
