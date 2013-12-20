@@ -17,19 +17,59 @@
 //    drawBarChart(data,"#chart");
 //  });
 //}
-function drawBarChart(data,divid){
-  var margin = { //为坐标轴留白
-		top: 20
-		,right: 20
-		, bottom: 30
-		, left: 40
-		},
-		width = 490 - margin.left - margin.right,
-		height = 300 - margin.top - margin.bottom,
-		barColor="#1f77b4",barHoldColor="#ff7f0e",
-		tickCount=5,
-		chartDiv=divid 
-		;
+function drawBarChart(data,continer,config){
+  var _config={
+    margin:{//为坐标轴留白
+      top:20,right:20,bottom:30,left:40
+    }
+    ,width:490
+    ,height:300
+    ,barColor:"#1f77b4"
+    ,barHoldColor:"#ff7f0e"
+    ,tickCount:5
+    ,continer:"#chart"
+    ,debug:true
+  };
+  
+	if(config){
+    for (var key in config){
+      _config[key]=config[key];
+    }
+  }
+	if(!_config.onPointClick){
+		_config.onPointClick=function(data){_d("on Point Click",data,"postion:"+d3.event.pageX+","+d3.event.pageY,d3.mouse(this));};
+	}
+  var _d=(function(){
+    var _d=function(msg,object){};
+    if(_config.debug){
+      if(typeof(_config.debug)=="function"){
+        _d=_config.debug;
+      }else{
+        _d=function(msg,object){
+          if(arguments.length>1){
+            var _msg=msg;
+            for(var i=1;i<arguments.length;i++){
+              _msg+=" "+JSON.stringify(arguments[i]);
+            }
+            console.log(_msg);
+          }else{
+            console.log(JSON.stringify(msg));
+          }
+        }
+      }
+    }
+    return _d;
+  })();
+
+  var margin = _config.margin,
+        width = _config.width - margin.left - margin.right,
+        height = _config.height - margin.top - margin.bottom,
+        barColor=_config.barColor,barHoldColor=_config.barHoldColor,
+        tickCount=_config.tickCount,
+        chartDiv=continer?continer:_config.continer
+        onPointClick=_config.onPointClick;
+        ;
+
   console.log("data: "+JSON.stringify(data));
   drawChart(data);
   function drawChart(data){
@@ -108,35 +148,87 @@ function drawBarChart(data,divid){
 		  .attr("width",x.rangeBand())
 		  .attr("y",function(d){return y(d.value);})
 		  .attr("height",function(d){return height-y(d.value);})
-		  .style("fill",barColor)
-		  .on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
-		  .on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);})
-		  .on("click",function(d){
-			  alert("data:"+JSON.stringify(d)
-				  +";event:"+d3.event.pageX+","+d3.event.pageY+";"
-				  +";mouse:"+d3.mouse(this));
-			});
+		  //.style("fill",barColor)
+		  //.on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
+		  //.on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);})
+		  .on("click",onPointClick);
 	console.log("END drawBarChart");
+  }
+  function getTickValues(tickValues,tickCount){
+    if(tickValues.length>tickCount){
+      var count=tickValues.length
+        ,step=Math.ceil(tickValues.length/(tickCount-1))
+        ,step2=step
+        ,lastIndex=0;
+      var vs=tickValues.slice(0,1).concat( tickValues.filter(function(d,i){if(i>=step2){step2+=step;lastIndex=i;return true;}}));
+      if(lastIndex!=count-1&&count-lastIndex<step*2/3){
+        vs.pop();
+      }
+      if(vs.length<tickCount){
+        vs.push(tickValues[tickValues.length-1]);
+      }
+    }
+    //console.log(tickValues.length+" "+vs+" "+tickValues[tickValues.length-1]);
+    return vs;
   }
 };
 
 
-function drawLineChart(data,divid){
-  var margin = { //为坐标轴留白
-        top: 20
-        ,right: 20
-        , bottom: 30
-        , left: 40
-        },
-        width = 490 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom,
-        barColor="#1f77b4",barHoldColor="#ff7f0e",
-        tickCount=5,
-        chartDiv=divid
+function drawLineChart(data,continer,config){
+  var _config={
+    margin:{//为坐标轴留白
+      top:20,right:20,bottom:30,left:40
+    }
+    ,width:490
+    ,height:300
+    ,barColor:"#1f77b4"
+    ,barHoldColor:"#ff7f0e"
+    ,tickCount:5
+    ,continer:"#chart"
+    ,debug:true
+  };
+  
+	if(config){
+    for (var key in config){
+      _config[key]=config[key];
+    }
+  }
+	if(!_config.onPointClick){
+		_config.onPointClick=function(data){_d("on Point Click",data,"postion:"+d3.event.pageX+","+d3.event.pageY,d3.mouse(this));};
+	}
+  var _d=(function(){
+    var _d=function(msg,object){};
+    if(_config.debug){
+      if(typeof(_config.debug)=="function"){
+        _d=_config.debug;
+      }else{
+        _d=function(msg,object){
+          if(arguments.length>1){
+            var _msg=msg;
+            for(var i=1;i<arguments.length;i++){
+              _msg+=" "+JSON.stringify(arguments[i]);
+            }
+            console.log(_msg);
+          }else{
+            console.log(JSON.stringify(msg));
+          }
+        }
+      }
+    }
+    return _d;
+  })();
+
+  var margin = _config.margin,
+        width = _config.width - margin.left - margin.right,
+        height = _config.height - margin.top - margin.bottom,
+        barColor=_config.barColor,barHoldColor=_config.barHoldColor,
+        tickCount=_config.tickCount,
+        chartDiv=continer?continer:_config.continer
+        onPointClick=_config.onPointClick;
         ;
         
-  console.log("data: "+JSON.stringify(data));
-  drawChart(data);
+  _d("data: ",data);
+  return drawChart(data);
   function drawChart(data){
     console.log("BEGIN drawLineChart");
     // clear
@@ -145,6 +237,7 @@ function drawLineChart(data,divid){
           .append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
+		  .attr("id","svgdiscuss")
           .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -167,7 +260,7 @@ function drawLineChart(data,divid){
       var m2=max+(max-min)/10;
       return [m1,m2];
     })(data);
-    console.log("YRANGE "+yrange);
+    _d("YRANGE ",yrange);
     y.domain(yrange)
       .nice(true);// 优化边界值
     console.log(y.ticks(tickCount));
@@ -189,12 +282,13 @@ function drawLineChart(data,divid){
 //      轴线
     var xAxis = d3.svg.axis() // x轴刻度线
         .scale(x)
-        .orient("bottom");
+        .orient("bottom")
+        .tickValues(getTickValues(data.map(function(d){return d.name;}),tickCount));
 
     var yAxis = d3.svg.axis() // y轴刻度线
         .scale(y)
         .orient("left")
-        .ticks(tickCount); // 
+        .ticks(tickCount);; // 
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (height) + ")")
@@ -222,38 +316,101 @@ function drawLineChart(data,divid){
           .data(data)
           .enter().append("circle")
           .attr("class","circle")
-          .attr("r",4)
+          .attr("r",2)
           .attr("transform",function(d){return "translate("+x(d.name)+","+y(d.value)+")";})
-          .on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
-          .on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);})
-          .on("click",function(d){
-              alert("data:"+JSON.stringify(d)
-                  +";event:"+d3.event.pageX+","+d3.event.pageY+";"
-                  +";mouse:"+d3.mouse(this));
-            });
+          //.on("mouseover",function(d){d.mouseover=true;d.fill=d3.select(this).style("fill");d3.select(this).style("fill",barHoldColor)})
+          //.on("mouseout",function(d){d.mouseover=false;d3.select(this).style("fill",d.fill);})
+          .on("click",onPointClick);
+    svg.selectAll(".x.axis .tick text").attr("style","");
+	
+		  
+          //.on("click",function(d){
+          //     alert("data:"+JSON.stringify(d)
+          //         +";event:"+d3.event.pageX+","+d3.event.pageY+";"
+          //         +";mouse:"+d3.mouse(this));
+			//	   alert(d.name);
+          //   });
     console.log("END drawLineChart");
+  }
+  function getTickValues(tickValues,tickCount){
+    if(tickValues.length>tickCount){
+      var count=tickValues.length
+        ,step=Math.ceil(tickValues.length/(tickCount-1))
+        ,step2=step
+        ,lastIndex=0;
+      var vs=tickValues.slice(0,1).concat( tickValues.filter(function(d,i){if(i>=step2){step2+=step;lastIndex=i;return true;}}));
+      if(lastIndex!=count-1&&count-lastIndex<step*2/3){
+        vs.pop();
+      }
+      if(vs.length<tickCount){
+        vs.push(tickValues[tickValues.length-1]);
+      }
+    }
+    //console.log(tickValues.length+" "+vs+" "+tickValues[tickValues.length-1]);
+    return vs;
   }
   
 };
 
 
-function drawPieChart(data,divid){
-  var margin = { //为坐标轴留白
-        top: 10
-        ,right: 10
-        , bottom: 10
-        , left: 10
-        },
-        width = 490 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom,
-        radius = Math.min(width, height) / 2,
-        chartDiv=divid
+function drawPieChart(data,continer,config){
+  var _config={
+    margin:{//为坐标轴留白
+      top:20,right:20,bottom:30,left:40
+    }
+    ,width:490
+    ,height:300
+    ,barColor:"#1f77b4"
+    ,barHoldColor:"#ff7f0e"
+    ,tickCount:5
+    ,continer:"#chart"
+    ,debug:true
+  };
+  
+	if(config){
+    for (var key in config){
+      _config[key]=config[key];
+    }
+  }
+  var _d=(function(){
+    var _d=function(msg,object){};
+    if(_config.debug){
+      if(typeof(_config.debug)=="function"){
+        _d=_config.debug;
+      }else{
+        _d=function(msg,object){
+          if(arguments.length>1){
+            var _msg=msg;
+            for(var i=1;i<arguments.length;i++){
+              _msg+=" "+JSON.stringify(arguments[i]);
+            }
+            console.log(_msg);
+          }else{
+            console.log(JSON.stringify(msg));
+          }
+        }
+      }
+    }
+    return _d;
+  })();
+	if(!_config.onPointClick){
+		_config.onPointClick=function(data){_d("on Point Click",data,"postion:"+d3.event.pageX+","+d3.event.pageY,d3.mouse(this));};
+	}
+  var margin = _config.margin,
+        width = _config.width - margin.left - margin.right,
+        height = _config.height - margin.top - margin.bottom,
+        barColor=_config.barColor,barHoldColor=_config.barHoldColor,
+        tickCount=_config.tickCount,
+        chartDiv=continer?continer:_config.continer,
+        onPointClick=_config.onPointClick,
+        radius = Math.min(width, height) / 2
         ;
+    
         
   console.log("data: "+JSON.stringify(data));
   drawChart(data);
   function drawChart(data){
-    console.log("BEGIN drawPieChart");
+    _d("BEGIN drawPieChart");
 
     
     var color = d3.scale.ordinal()
@@ -285,7 +442,9 @@ function drawPieChart(data,divid){
         .attr("class", "arc");
     g.append("path")
           .attr("d", arc)
-          .style("fill", function(d) { return color(d.data.name); });
+          .attr("class",function(d,i){return "color"+(i+1);})
+          //.style("fill", function(d) { return color(d.data.name); })
+          .on("click",onPointClick);
 
     g.append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })

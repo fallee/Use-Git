@@ -14,6 +14,18 @@
   display: none;
 }
 
+/* bar chart */
+
+.bar {
+  fill: #1f77b4;
+  stroke: #1f77b4;
+  stroke-width:0;
+}
+.bar:hover {
+  fill: #ff7f0e;
+  stroke: #ff7f0e;
+  stroke-width:0;
+}
 /* line chart */
 .line .line {
   fill: none;
@@ -21,13 +33,49 @@
   stroke-width:2;
 }
 .circle .circle {
-  fill: #fff;
+  fill: #1f77b4;
   stroke: #1f77b4;
-  stroke-width:2;
+  stroke-width:1;
 }
-
+.circle .circle:hover {
+  fill: #ff7f0e;
+  stroke: #ff7f0e;
+  stroke-width:4;
+}
+.x.axis .tick text{
+  text-anchor:middle
+}
+.x.axis .tick:first-child text{
+  text-anchor:start
+}
+.x.axis>.tick:last-of-type text{
+  text-anchor:end
+}
 /* pie chart */
 .arc path {
   stroke: #fff;
+  stroke-width:1;
 }
-
+.arc path:hover {
+  fill: #ccc;
+}
+.arc .color1{ fill: #1f77b4;}
+.arc .color2{ fill: #aec7e8;}
+.arc .color3{ fill: #ff7f0e;}
+.arc .color4{ fill: #ffbb78;}
+.arc .color5{ fill: #2ca02c;}
+.arc .color6{ fill: #98df8a;}
+.arc .color7{ fill: #d62728;}
+.arc .color8{ fill: #ff9896;}
+.arc .color9{ fill: #9467bd;}
+.arc .color10{ fill: #c5b0d5;}
+.arc .color11{ fill: #8c564b;}
+.arc .color12{ fill: #c49c94;}
+.arc .color13{ fill: #e377c2;}
+.arc .color14{ fill: #f7b6d2;}
+.arc .color15{ fill: #7f7f7f;}
+.arc .color16{ fill: #c7c7c7;}
+.arc .color17{ fill: #bcbd22;}
+.arc .color18{ fill: #dbdb8d;}
+.arc .color19{ fill: #17becf;}
+.arc .color20{ fill: #9edae5;}
